@@ -6,10 +6,12 @@ namespace CleverCode.Helpers
     {
         public HttpStatusCode StatusCode { get; set; }
         public string? Message { get; set; }
-        public BaseResponse(HttpStatusCode statusCode, string? message = null)
+        public object? Data { get; set; }
+        public BaseResponse(HttpStatusCode statusCode,object? data ,string? message = null)
         {
             Message = message ?? string.Empty;
             StatusCode = statusCode;
+            Data = data;
         }
         public virtual string? GetMessage(HttpStatusCode statusCode)
         {
