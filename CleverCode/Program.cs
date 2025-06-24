@@ -1,4 +1,10 @@
 
+<<<<<<< HEAD
+=======
+using CleverCode.Data;
+using Microsoft.EntityFrameworkCore;
+
+>>>>>>> master
 namespace CleverCode
 {
     public class Program
@@ -12,6 +18,11 @@ namespace CleverCode
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+<<<<<<< HEAD
+=======
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+>>>>>>> master
 
             var app = builder.Build();
 
