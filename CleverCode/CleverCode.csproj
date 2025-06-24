@@ -7,17 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-<<<<<<< HEAD
+
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
-=======
-    <Compile Remove="Data\Migrations\**" />
-    <Compile Remove="Entities\**" />
-    <Content Remove="Data\Migrations\**" />
-    <Content Remove="Entities\**" />
-    <EmbeddedResource Remove="Data\Migrations\**" />
-    <EmbeddedResource Remove="Entities\**" />
-    <None Remove="Data\Migrations\**" />
-    <None Remove="Entities\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,20 +21,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
->>>>>>> master
+
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Controllers\" />
-<<<<<<< HEAD
-    <Folder Include="Data\Migrations\" />
     <Folder Include="Data\Configurations\" />
     <Folder Include="Interfaces\" />
-    <Folder Include="Entities\" />
-=======
-    <Folder Include="Interfaces\" />
->>>>>>> master
-    <Folder Include="Helpers\" />
     <Folder Include="Services\" />
   </ItemGroup>
 

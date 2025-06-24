@@ -1,10 +1,9 @@
-
-<<<<<<< HEAD
-=======
 using CleverCode.Data;
+using CleverCode.Helpers;
+using CleverCode.Middlewares;
 using Microsoft.EntityFrameworkCore;
 
->>>>>>> master
+
 namespace CleverCode
 {
     public class Program
@@ -18,12 +17,10 @@ namespace CleverCode
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
-<<<<<<< HEAD
-=======
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
->>>>>>> master
 
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddAutoMapper(m => m.AddProfile(new MappingProfiles()));
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -33,7 +30,7 @@ namespace CleverCode
             }
 
             app.UseHttpsRedirection();
-
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseAuthorization();
 
 
