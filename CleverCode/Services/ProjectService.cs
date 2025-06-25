@@ -1,0 +1,203 @@
+﻿using AutoMapper;
+using CleverCode.Data;
+using CleverCode.DTO;
+using CleverCode.Helpers;
+using CleverCode.Interfaces;
+using CleverCode.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
+namespace CleverCode.Services
+{
+    public class ProjectService : IProjectService
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
+
+        public ProjectService(ApplicationDbContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
+        public async Task<ServiceResult> GetAllProjectsAsync()
+        {
+            var projects = await _context.Projects.ToListAsync();
+            return new ServiceResult ()
+            {
+                Data = _mapper.Map<List<ProjectDto>>(projects),
+                Message = "Projects retrieved successfully",
+                StatusCode = HttpStatusCode.OK,
+                Success = true
+            };
+        }
+        public async Task<ServiceResult> GetSerivceProjects(int serviceId)
+        {
+            var service = await _context.Services
+                .FirstOrDefaultAsync(s => s.Service_ID == serviceId);
+            if(service == null)
+            {
+                return new ServiceResult()
+                {
+                    Data = null,
+                    Message = "Service not found",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+            var projectServices =  await _context.ProjectServices
+                .Where(ps => ps.Service_ID == serviceId)
+                .Select(ps => ps.Project)
+                .ToListAsync();
+            return new ServiceResult()
+            {
+                Data = _mapper.Map<List<ProjectDto>>(projectServices),
+                Message = "Projects retrieved successfully",
+                StatusCode = HttpStatusCode.OK,
+                Success = true
+            };
+        }
+        public async Task<ServiceResult> AddProjectToService(int serviceId, int projectId)
+        {
+            var service = await _context.Services
+                .FirstOrDefaultAsync(s => s.Service_ID == serviceId);
+            if(service == null)
+            {
+                return new ServiceResult()
+                {
+                    Data = null,
+                    Message = "Service not found",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+            var project = await _context.Projects
+                .FirstOrDefaultAsync(p => p.Project_ID == projectId);
+            if(project == null)
+            {
+                return new ServiceResult()
+                {
+                    Data = null,
+                    Message = "Project not found",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+            var projectService = new Models.ProjectService()
+            {
+                Project_ID = projectId,
+                Service_ID = serviceId
+            };
+            await _context.ProjectServices.AddAsync(projectService);
+            var result = await _context.SaveChangesAsync();
+            if(result < 0)
+            {
+                return new ServiceResult()
+                {
+                    Data = null,
+                    Message = "Couldn't add project to service",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+            return new ServiceResult()
+            {
+                Data = _mapper.Map<ProjectDto>(project),
+                Message = "Project added to service successfully",
+                StatusCode = HttpStatusCode.OK,
+                Success = true
+            };
+        }
+        public async Task<ServiceResult> GetProjectByIdAsync(int id)
+        {
+            var projects = await _context.Projects.FirstOrDefaultAsync();
+            return new ServiceResult()
+            {
+                Data = _mapper.Map<ProjectDto>(projects),
+                Message = projects != null ? "Project retrieved successfully" : "Project not found",
+                StatusCode = projects != null ? HttpStatusCode.OK : HttpStatusCode.NotFound,
+                Success = projects != null
+            };
+        }
+        public async Task<ServiceResult> CreateProjectAsync(ProjectDto projectDto)
+        {
+            var projectEntity = _mapper.Map<Project>(projectDto);
+            var entity = await _context.Projects.AddAsync(projectEntity);
+
+            if (projectDto.ServiceId.HasValue)
+            {
+                await _context.ProjectServices.AddAsync(new Models.ProjectService()
+                {
+                    Project_ID = entity.Entity.Project_ID,
+                    Service_ID = projectDto.ServiceId.Value
+                });
+            }
+            var result = await _context.SaveChangesAsync();
+            if(result < 0)
+                return new ServiceResult()
+                {
+                    Data = null,
+                    Message = "Couldn't create project",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+
+            return new ServiceResult()
+            {
+                Data = _mapper.Map<ProjectDto>(entity.Entity),
+                Message = "Project created successfully",
+                StatusCode = HttpStatusCode.Created,
+                Success = true
+            };
+        }
+        public async Task<ServiceResult> UpdateProjectAsync(int id, ProjectDto projectDto)
+        {
+            var project = await _context.Projects.FirstOrDefaultAsync(p => p.Project_ID == id);
+            if (project == null)
+                return new ServiceResult()
+                {
+                    Data = null,
+                    Message = "Project not found",
+                    StatusCode = HttpStatusCode.NotFound
+                };
+            
+            var projectEntity = _mapper.Map<Project>(projectDto);
+            var updatedEntity = _context.Projects.Update(projectEntity);
+            var result = await _context.SaveChangesAsync();
+            if(result < 0)
+                return new ServiceResult()
+                {
+                    Data = null,
+                    Message = "Couldn't update project",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            return new ServiceResult() 
+            { 
+                Data = _mapper.Map<ProjectDto>(updatedEntity.Entity),
+                Message = "Project created successfully", 
+                StatusCode = HttpStatusCode.Created, Success = true 
+            };
+        }
+        public async Task<ServiceResult> DeleteProjectAsync(int id)
+        {
+            var project = await _context.Projects.FirstOrDefaultAsync(p => p.Project_ID == id);
+            if (project == null)
+                return new ServiceResult()
+                {
+                    Data = null,
+                    Message = "Project not found",
+                    StatusCode = HttpStatusCode.NotFound
+                };
+            _context.Projects.Remove(project);
+            var result = _context.SaveChangesAsync();
+            if (result.Result < 0)
+                return new ServiceResult()
+                {
+                    Data = null,
+                    Message = "Couldn't delete project",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            return new ServiceResult()
+            {
+                Data = null,
+                Message = "Project deleted successfully",
+                StatusCode = HttpStatusCode.OK,
+                Success = true
+            };
+        }
+
+    }
+}
