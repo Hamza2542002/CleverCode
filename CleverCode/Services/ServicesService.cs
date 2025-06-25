@@ -121,7 +121,7 @@ namespace CleverCode.Services
 
         public async Task<ServiceResult> DeleteServiceAsync(int id)
         {
-            var service = await _context.Services.FirstOrDefaultAsync(id);
+            var service = await _context.Services.FirstOrDefaultAsync(s => s.Service_ID == id);
             if (service is null)
             {
                 return new ServiceResult()

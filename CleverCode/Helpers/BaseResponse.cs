@@ -10,8 +10,11 @@ namespace CleverCode.Helpers
         public BaseResponse(HttpStatusCode statusCode,object? data ,string? message = null)
         {
             StatusCode = statusCode;
+
             Data = data;
+
             Message = message ?? GetMessage(statusCode);
+
         }
         public virtual string? GetMessage(HttpStatusCode statusCode)
         {

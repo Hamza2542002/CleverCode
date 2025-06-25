@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CleverCode.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250625112517_InitCreate")]
-    partial class InitCreate
+    [Migration("20250625183043_updateContactInfo")]
+    partial class updateContactInfo
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,10 +32,6 @@ namespace CleverCode.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Company_ID"));
-
-                    b.Property<string>("ContactInfo")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -66,9 +62,6 @@ namespace CleverCode.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("Values")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Vision")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
@@ -76,6 +69,30 @@ namespace CleverCode.Migrations
                     b.HasKey("Company_ID");
 
                     b.ToTable("CompanyInformations");
+                });
+
+            modelBuilder.Entity("CleverCode.Models.CompanyValues", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Company_ID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Company_ID");
+
+                    b.ToTable("CompanyValues");
                 });
 
             modelBuilder.Entity("CleverCode.Models.Complaint", b =>
@@ -240,6 +257,9 @@ namespace CleverCode.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime");
 
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -335,6 +355,44 @@ namespace CleverCode.Migrations
                     b.ToTable("TeamMembers");
                 });
 
+            modelBuilder.Entity("CleverCode.Models.CompanyInformation", b =>
+                {
+                    b.OwnsOne("CleverCode.Models.ContactInfo", "ContactInfo", b1 =>
+                        {
+                            b1.Property<int>("CompanyInformationCompany_ID")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Address")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Email")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Phone")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("CompanyInformationCompany_ID");
+
+                            b1.ToTable("CompanyInformations");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CompanyInformationCompany_ID");
+                        });
+
+                    b.Navigation("ContactInfo");
+                });
+
+            modelBuilder.Entity("CleverCode.Models.CompanyValues", b =>
+                {
+                    b.HasOne("CleverCode.Models.CompanyInformation", "CompanyInformation")
+                        .WithMany("Values")
+                        .HasForeignKey("Company_ID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CompanyInformation");
+                });
+
             modelBuilder.Entity("CleverCode.Models.Complaint", b =>
                 {
                     b.HasOne("CleverCode.Models.Service", "Service")
@@ -382,6 +440,11 @@ namespace CleverCode.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("CleverCode.Models.CompanyInformation", b =>
+                {
+                    b.Navigation("Values");
                 });
 
             modelBuilder.Entity("CleverCode.Models.Project", b =>

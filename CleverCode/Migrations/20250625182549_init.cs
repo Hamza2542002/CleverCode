@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CleverCode.Migrations
 {
     /// <inheritdoc />
-    public partial class Models : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,16 +17,14 @@ namespace CleverCode.Migrations
                 {
                     Company_ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Mission = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     Vision = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    ContactInfo = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Logo = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     SocialLink = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Story = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     ResponseTime = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Values = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -101,6 +99,49 @@ namespace CleverCode.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CompanyValues",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Company_ID = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CompanyValues", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CompanyValues_CompanyInformations_Company_ID",
+                        column: x => x.Company_ID,
+                        principalTable: "CompanyInformations",
+                        principalColumn: "Company_ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ContactInfo",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Company_ID = table.Column<int>(type: "int", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContactInfo", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ContactInfo_CompanyInformations_Company_ID",
+                        column: x => x.Company_ID,
+                        principalTable: "CompanyInformations",
+                        principalColumn: "Company_ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Complaints",
                 columns: table => new
                 {
@@ -113,7 +154,6 @@ namespace CleverCode.Migrations
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Date = table.Column<DateTime>(type: "datetime", nullable: false),
                     Service_ID = table.Column<int>(type: "int", nullable: true)
-                
                 },
                 constraints: table =>
                 {
@@ -124,7 +164,6 @@ namespace CleverCode.Migrations
                         principalTable: "Services",
                         principalColumn: "Service_ID",
                         onDelete: ReferentialAction.SetNull);
-               
                 });
 
             migrationBuilder.CreateTable(
@@ -138,8 +177,7 @@ namespace CleverCode.Migrations
                     Date = table.Column<DateTime>(type: "datetime", nullable: false),
                     Company = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
-                    Service_ID = table.Column<int>(type: "int", nullable: true),
-                 
+                    Service_ID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -150,7 +188,6 @@ namespace CleverCode.Migrations
                         principalTable: "Services",
                         principalColumn: "Service_ID",
                         onDelete: ReferentialAction.SetNull);
-                 
                 });
 
             migrationBuilder.CreateTable(
@@ -188,8 +225,8 @@ namespace CleverCode.Migrations
                     Date = table.Column<DateTime>(type: "datetime", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Company = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Service_ID = table.Column<int>(type: "int", nullable: true),
-                  
+                    IsApproved = table.Column<bool>(type: "bit", nullable: false),
+                    Service_ID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -200,21 +237,28 @@ namespace CleverCode.Migrations
                         principalTable: "Services",
                         principalColumn: "Service_ID",
                         onDelete: ReferentialAction.SetNull);
-                 
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CompanyValues_Company_ID",
+                table: "CompanyValues",
+                column: "Company_ID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Complaints_Service_ID",
                 table: "Complaints",
                 column: "Service_ID");
 
+            migrationBuilder.CreateIndex(
+                name: "IX_ContactInfo_Company_ID",
+                table: "ContactInfo",
+                column: "Company_ID",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Messages_Service_ID",
                 table: "Messages",
                 column: "Service_ID");
-
-        
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProjectServices_Service_ID",
@@ -225,18 +269,19 @@ namespace CleverCode.Migrations
                 name: "IX_Reviews_Service_ID",
                 table: "Reviews",
                 column: "Service_ID");
-
-      
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CompanyInformations");
+                name: "CompanyValues");
 
             migrationBuilder.DropTable(
                 name: "Complaints");
+
+            migrationBuilder.DropTable(
+                name: "ContactInfo");
 
             migrationBuilder.DropTable(
                 name: "FAQs");
@@ -252,6 +297,9 @@ namespace CleverCode.Migrations
 
             migrationBuilder.DropTable(
                 name: "TeamMembers");
+
+            migrationBuilder.DropTable(
+                name: "CompanyInformations");
 
             migrationBuilder.DropTable(
                 name: "Projects");
