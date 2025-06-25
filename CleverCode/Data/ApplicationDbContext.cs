@@ -21,11 +21,14 @@ namespace CleverCode.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<CompanyInformation>().OwnsOne(c => c.ContactInfo);
+            modelBuilder.Entity<CompanyInformation>().OwnsOne(c => c.Values);
+
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         }
+
 
     }
 
