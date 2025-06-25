@@ -1,6 +1,8 @@
 using CleverCode.Data;
 using CleverCode.Helpers;
+using CleverCode.Interfaces;
 using CleverCode.Middlewares;
+using CleverCode.Services;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -15,8 +17,14 @@ namespace CleverCode
             // Add services to the container.
 
             builder.Services.AddControllers();
+
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+            builder.Services.AddScoped<IComplaintService, ComplaintService>();
+
+            builder.Services.AddScoped<ICompanyInformationService, CompanyInformationService>();
+            builder.Services.AddScoped<IFAQService, FAQService>();
+            builder.Services.AddScoped<IMessageService, MessageService>();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

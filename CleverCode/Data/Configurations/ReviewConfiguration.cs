@@ -23,9 +23,9 @@ namespace CleverCode.Data.Configurations
             builder.Property(r => r.Company)
                 .HasMaxLength(100);
             builder.HasOne(c => c.Service)
-          .WithMany()
-          .HasForeignKey(c => c.Service_ID)
-          .OnDelete(DeleteBehavior.SetNull); 
+        .WithMany(s => s.Reviews) // لازم تكون موجودة في Service
+        .HasForeignKey(c => c.Service_ID)
+        .OnDelete(DeleteBehavior.SetNull);
 
 
         }

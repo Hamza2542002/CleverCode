@@ -18,16 +18,15 @@ namespace CleverCode.Migrations
                     Company_ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Mission = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Vision = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    ContactInfo = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Logo = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    SocialLink = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Story = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    ResponseTime = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    ValueName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    ValueDescription = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false)
+                    Mission = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    Vision = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    ContactInfo = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Logo = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    SocialLink = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Story = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    ResponseTime = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Values = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -40,8 +39,8 @@ namespace CleverCode.Migrations
                 {
                     FAQ_ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Questions = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    Answer = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                    Questions = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    Answer = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -56,8 +55,8 @@ namespace CleverCode.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Rate = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Tech = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Tech = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -71,12 +70,12 @@ namespace CleverCode.Migrations
                     Service_ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Icon = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Icon = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Pricing = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Feature = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Category = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    TimeLine = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    Feature = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Category = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    TimeLine = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -89,12 +88,12 @@ namespace CleverCode.Migrations
                 {
                     TeamMember_ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Role = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    LinkedInUrl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    PhotoUrl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    BIO = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Role = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
+                    LinkedInUrl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    PhotoUrl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    BIO = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -107,14 +106,14 @@ namespace CleverCode.Migrations
                 {
                     Complaint_ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Type = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Priority = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Priority = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Date = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Service_ID = table.Column<int>(type: "int", nullable: true),
-                    Service_ID1 = table.Column<int>(type: "int", nullable: true)
+                    Service_ID = table.Column<int>(type: "int", nullable: true)
+                
                 },
                 constraints: table =>
                 {
@@ -125,11 +124,7 @@ namespace CleverCode.Migrations
                         principalTable: "Services",
                         principalColumn: "Service_ID",
                         onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_Complaints_Services_Service_ID1",
-                        column: x => x.Service_ID1,
-                        principalTable: "Services",
-                        principalColumn: "Service_ID");
+               
                 });
 
             migrationBuilder.CreateTable(
@@ -138,13 +133,13 @@ namespace CleverCode.Migrations
                 {
                     Message_ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MessageText = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    MessageText = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Date = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Company = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Company = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
                     Service_ID = table.Column<int>(type: "int", nullable: true),
-                    Service_ID1 = table.Column<int>(type: "int", nullable: true)
+                 
                 },
                 constraints: table =>
                 {
@@ -155,11 +150,7 @@ namespace CleverCode.Migrations
                         principalTable: "Services",
                         principalColumn: "Service_ID",
                         onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_Messages_Services_Service_ID1",
-                        column: x => x.Service_ID1,
-                        principalTable: "Services",
-                        principalColumn: "Service_ID");
+                 
                 });
 
             migrationBuilder.CreateTable(
@@ -192,13 +183,13 @@ namespace CleverCode.Migrations
                 {
                     Review_ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Comment = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Rate = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Company = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Company = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Service_ID = table.Column<int>(type: "int", nullable: true),
-                    Service_ID1 = table.Column<int>(type: "int", nullable: true)
+                  
                 },
                 constraints: table =>
                 {
@@ -209,11 +200,7 @@ namespace CleverCode.Migrations
                         principalTable: "Services",
                         principalColumn: "Service_ID",
                         onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_Reviews_Services_Service_ID1",
-                        column: x => x.Service_ID1,
-                        principalTable: "Services",
-                        principalColumn: "Service_ID");
+                 
                 });
 
             migrationBuilder.CreateIndex(
@@ -221,20 +208,13 @@ namespace CleverCode.Migrations
                 table: "Complaints",
                 column: "Service_ID");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Complaints_Service_ID1",
-                table: "Complaints",
-                column: "Service_ID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Messages_Service_ID",
                 table: "Messages",
                 column: "Service_ID");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Messages_Service_ID1",
-                table: "Messages",
-                column: "Service_ID1");
+        
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProjectServices_Service_ID",
@@ -246,10 +226,7 @@ namespace CleverCode.Migrations
                 table: "Reviews",
                 column: "Service_ID");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Reviews_Service_ID1",
-                table: "Reviews",
-                column: "Service_ID1");
+      
         }
 
         /// <inheritdoc />

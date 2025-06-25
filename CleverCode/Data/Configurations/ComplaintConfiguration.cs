@@ -26,10 +26,12 @@ namespace CleverCode.Data.Configurations
 
             builder.Property(c => c.Date)
                 .HasColumnType("datetime");
-            builder.HasOne(c => c.Service)
-       .WithMany()
+           
+      builder.HasOne(c => c.Service)
+       .WithMany(s => s.Complaints) // لازم تكون موجودة في Service
        .HasForeignKey(c => c.Service_ID)
-       .OnDelete(DeleteBehavior.SetNull); 
+       .OnDelete(DeleteBehavior.SetNull);
+
 
         }
     }

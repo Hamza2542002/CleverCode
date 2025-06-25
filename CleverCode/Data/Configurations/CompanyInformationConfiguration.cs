@@ -37,11 +37,7 @@ namespace CleverCode.Data.Configurations
             builder.Property(c => c.ResponseTime)
                 .HasMaxLength(50);
 
-            builder.Property(c => c.ValueName)
-                .HasMaxLength(100);
-
-            builder.Property(c => c.ValueDescription)
-                .HasMaxLength(300);
+          
         }
     }
 }

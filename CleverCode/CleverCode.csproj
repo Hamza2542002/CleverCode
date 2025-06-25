@@ -10,7 +10,7 @@
 
     <PackageReference Include="AutoMapper" Version="14.0.0" />
 
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+   
   </ItemGroup>
 
   <ItemGroup>
@@ -21,14 +21,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+   
 
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
     <Folder Include="Data\Configurations\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Services\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
