@@ -119,15 +119,6 @@ namespace CleverCode.Services
         {
             var projectEntity = _mapper.Map<Models.Project>(projectDto);
             var entity = await _context.Projects.AddAsync(projectEntity);
-
-            if (projectDto.ServiceId.HasValue)
-            {
-                await _context.ProjectServices.AddAsync(new Models.ProjectService()
-                {
-                    Project_ID = entity.Entity.Project_ID,
-                    Service_ID = projectDto.ServiceId.Value
-                });
-            }
             var result = await _context.SaveChangesAsync();
             if(result < 0)
                 return new ServiceResult()
