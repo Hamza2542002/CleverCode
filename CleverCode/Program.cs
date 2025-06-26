@@ -1,4 +1,5 @@
 using CleverCode.Data;
+using CleverCode.Extentions;
 using CleverCode.Helpers;
 using CleverCode.Interfaces;
 using CleverCode.Middlewares;
@@ -47,6 +48,8 @@ namespace CleverCode
                 };
             });
 
+            builder.Services.AddApplicationDbContext(builder.Configuration, builder.Environment);
+
             // Identity + Roles
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddRoles<IdentityRole>() // ✅ Add this
@@ -64,9 +67,7 @@ namespace CleverCode
             builder.Services.AddScoped<IProjectService, Services.ProjectService>();
 
             // DB context
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+            
             builder.Services.AddAutoMapper(m => m.AddProfile(new MappingProfiles()));
             builder.Services.AddOpenApi();
 
