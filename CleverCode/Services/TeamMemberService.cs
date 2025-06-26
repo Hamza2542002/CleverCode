@@ -94,6 +94,13 @@ namespace CleverCode.Services
                     Success = false
                 };
             }
+            teamMember.BIO = teamMemberDto.BIO;
+            teamMember.Description = teamMemberDto.Description;
+            teamMember.LinkedInUrl = teamMemberDto.LinkedInUrl;
+            teamMember.Name = teamMemberDto.Name;
+            teamMember.PhotoUrl = teamMemberDto.PhotoUrl;
+            teamMember.Role = teamMemberDto.Role;
+
             _context.TeamMembers.Update(teamMember);
             var saveResult = await _context.SaveChangesAsync();
             if (saveResult < 0)

@@ -56,6 +56,7 @@ namespace CleverCode
             builder.Services.AddScoped<IFAQService, FAQService>();
             builder.Services.AddScoped<IMessageService, MessageService>();
             builder.Services.AddScoped<IAuthServices, AuthServices>();
+            builder.Services.AddScoped<ITeamMemberService, TeamMemberService>();
 
             // DB context
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -67,17 +68,17 @@ namespace CleverCode
             var app = builder.Build();
 
             // 🔄 Create Roles if not exist
-            using (var scope = app.Services.CreateScope())
-            {
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                string[] roles = { "Admin", "User" };
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            //    string[] roles = { "Admin", "User" };
 
-                foreach (var role in roles)
-                {
-                    if (!await roleManager.RoleExistsAsync(role))
-                        await roleManager.CreateAsync(new IdentityRole(role));
-                }
-            }
+            //    foreach (var role in roles)
+            //    {
+            //        if (!await roleManager.RoleExistsAsync(role))
+            //            await roleManager.CreateAsync(new IdentityRole(role));
+            //    }
+            //}
 
             if (app.Environment.IsDevelopment())
             {

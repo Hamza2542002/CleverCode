@@ -14,6 +14,8 @@ namespace CleverCode.Helpers
 
             CreateMap<ContactInfo, ContactInfoDto>().ReverseMap();
             CreateMap<CompanyValues, CompanyValuesDto>().ReverseMap();
+
+            CreateMap<TeamMember,TeamMemberDto>().ReverseMap();
         }
     }
 }
