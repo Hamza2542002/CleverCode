@@ -47,7 +47,7 @@ public class AuthServices : IAuthServices
         {
             Subject = new ClaimsIdentity(authClaims),
             Expires = DateTime.UtcNow.AddDays(_jwt.DurationInDays),
-            Issuer = _jwt.IssureIP,
+            Issuer = _jwt.IssuerIP,
             Audience = _jwt.AudienceIP,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
         };
@@ -118,7 +118,7 @@ public class AuthServices : IAuthServices
         {
             Subject = new ClaimsIdentity(authClaims),
             Expires = DateTime.UtcNow.AddDays(_jwt.DurationInDays),
-            Issuer = _jwt.IssureIP,
+            Issuer = _jwt.IssuerIP,
             Audience = _jwt.AudienceIP,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
         };

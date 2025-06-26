@@ -25,8 +25,7 @@ namespace CleverCode.Controllers
 
             return Ok(result);
         }
-        //[Authorize(Roles = "Admin")]
-       
+        [Authorize(Roles = "Admin" , AuthenticationSchemes = "Bearer")]
         [HttpPost("register-admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
         {

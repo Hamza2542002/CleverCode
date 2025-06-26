@@ -24,6 +24,7 @@ namespace CleverCode
 
             builder.Services.AddAuthentication(options =>
             {
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
@@ -37,11 +38,12 @@ namespace CleverCode
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
                     ValidIssuer = builder.Configuration["JWT:IssuerIP"],
                     ValidAudience = builder.Configuration["JWT:AudienceIP"],
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecurityKey"]!)
-                    )
+                    ),
                 };
             });
 
@@ -71,23 +73,23 @@ namespace CleverCode
             var app = builder.Build();
 
             // 🔄 Create Roles if not exist
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            //    string[] roles = { "Admin", "User" };
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                string[] roles = { "Admin", "User" };
 
-            //    foreach (var role in roles)
-            //    {
-            //        if (!await roleManager.RoleExistsAsync(role))
-            //            await roleManager.CreateAsync(new IdentityRole(role));
-            //    }
-            //}
+                foreach (var role in roles)
+                {
+                    if (!await roleManager.RoleExistsAsync(role))
+                        await roleManager.CreateAsync(new IdentityRole(role));
+                }
+            }
 
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
             }
-
+            app.UseRouting();
             app.UseHttpsRedirection();
             app.UseMiddleware<ExceptionMiddleware>();
             app.UseAuthentication();
