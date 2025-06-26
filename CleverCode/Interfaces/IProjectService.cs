@@ -12,5 +12,6 @@ namespace CleverCode.Interfaces
         Task<ServiceResult> CreateProjectAsync(ProjectDto project);
         Task<ServiceResult> UpdateProjectAsync(int id, ProjectDto project);
         Task<ServiceResult> DeleteProjectAsync(int id);
+        Task<ServiceResult> DeleteProjectFromService(int service_id, int project_id);
     }
 }

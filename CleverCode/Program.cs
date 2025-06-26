@@ -57,6 +57,9 @@ namespace CleverCode
             builder.Services.AddScoped<IMessageService, MessageService>();
             builder.Services.AddScoped<IAuthServices, AuthServices>();
             builder.Services.AddScoped<ITeamMemberService, TeamMemberService>();
+            builder.Services.AddScoped<IServicesService, ServicesService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
+            builder.Services.AddScoped<IProjectService, Services.ProjectService>();
 
             // DB context
             builder.Services.AddDbContext<ApplicationDbContext>(options =>

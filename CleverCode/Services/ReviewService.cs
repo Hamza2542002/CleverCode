@@ -21,7 +21,7 @@ namespace CleverCode.Services
 
         public async Task<ServiceResult> GetAllReviewsAsync()
         {
-            var reviews = await _context.Reviews.ToListAsync();
+            var reviews = await _context.Reviews.Include(s => s.Service).ToListAsync();
             return new ServiceResult()
             {
                 Data = _mapper.Map<List<ReviewDto>>(reviews),
@@ -32,7 +32,7 @@ namespace CleverCode.Services
         }
         public async Task<ServiceResult> GetReviewByIdAsync(int id)
         {
-            var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Review_ID == id);
+            var review = await _context.Reviews.Include(s => s.Service).FirstOrDefaultAsync(r => r.Review_ID == id);
             return new ServiceResult()
             {
                 Data = _mapper.Map<ReviewDto>(review),
@@ -62,7 +62,7 @@ namespace CleverCode.Services
         }
         public async Task<ServiceResult> UpdateReviewAsync(int id, ReviewDto reviewDto)
         {
-            var review = await _context.Reviews.FindAsync(id);
+            var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Review_ID == id);
             if (review == null)
             {
                 return new ServiceResult()
@@ -71,8 +71,13 @@ namespace CleverCode.Services
                     StatusCode = HttpStatusCode.NotFound
                 };
             }
-            var reviewEntity = _mapper.Map<Review>(reviewDto);
-            var updatedEntity = _context.Reviews.Update(reviewEntity);
+            review.Rate = reviewDto.Rate;
+            review.Comment = reviewDto.Comment;
+            review.Date = reviewDto.Date;
+            review.Name = reviewDto.Name;
+            review.Company = reviewDto.Company;
+            review.Service_ID = reviewDto.Service_ID;
+            var updatedEntity = _context.Reviews.Update(review);
             var result = await _context.SaveChangesAsync();
             if (result < 0)
                 return new ServiceResult()
@@ -109,7 +114,7 @@ namespace CleverCode.Services
                 StatusCode = HttpStatusCode.NotFound
             };
         }
-        public async Task<ServiceResult> GetReviewsByProjectIdAsync(int serviceId)
+        public async Task<ServiceResult> GetReviewsByServiceIdAsync(int serviceId)
         {
             var service = await _context.Services
                 .FirstOrDefaultAsync(s => s.Service_ID == serviceId);

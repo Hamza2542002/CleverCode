@@ -70,7 +70,7 @@ namespace CleverCode.Controllers
             var result = await _projectService.AddProjectToService(service_id, project_id);
             if (!result.Success)
             {
-                return BadRequest(new ErrorResponse(HttpStatusCode.BadRequest, "Failed to add project to service."));
+                return BadRequest(new ErrorResponse(HttpStatusCode.BadRequest, result.Message));
             }
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Project added to service successfully."));
         }
@@ -98,6 +98,16 @@ namespace CleverCode.Controllers
         {
             var result = await _projectService.DeleteProjectAsync(id);
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Projects Deleted Successfulltu"));
+        }
+        [HttpDelete("service/{service_id}/{project_id}")]
+        public async Task<ActionResult<ProjectDto>> DeleteProjectFromService(int service_id, int project_id)
+        {
+            var result = await _projectService.DeleteProjectFromService(service_id, project_id);
+            if (!result.Success)
+            {
+                return BadRequest(new ErrorResponse(HttpStatusCode.BadRequest, result.Message));
+            }
+            return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Project added to service successfully."));
         }
     }
 }

@@ -16,6 +16,13 @@ namespace CleverCode.Helpers
             CreateMap<CompanyValues, CompanyValuesDto>().ReverseMap();
 
             CreateMap<TeamMember,TeamMemberDto>().ReverseMap();
+            CreateMap<Service,ServiceDto>().ReverseMap();
+            CreateMap<Complaint,ComplaintDto>().ReverseMap();
+            CreateMap<Review, ReviewDto>();
+            CreateMap<ReviewDto, Review>();
+            CreateMap<Message,MessageDto>().ReverseMap();
+            CreateMap<Project,ProjectDto>().ReverseMap();
+
         }
     }
 }

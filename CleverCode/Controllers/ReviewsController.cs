@@ -17,7 +17,7 @@ namespace CleverCode.Controllers
             _reviewService = reviewService;
         }
 
-        [HttpGet("GetAllReviews")]
+        [HttpGet]
         public async Task<IActionResult> GetAllReviews()
         {
             var result = await _reviewService.GetAllReviewsAsync();
@@ -67,7 +67,7 @@ namespace CleverCode.Controllers
         [HttpGet("ByService/{serviceId}")]
         public async Task<IActionResult> GetReviewsByServiceId(int serviceId)
         {
-            var result = await _reviewService.GetReviewsByProjectIdAsync(serviceId);
+            var result = await _reviewService.GetReviewsByServiceIdAsync(serviceId);
             if (!result.Success)
                 return BadRequest(new ErrorResponse(result.StatusCode, result.Message));
             return Ok(new BaseResponse(result.StatusCode, result.Data, result.Message));
