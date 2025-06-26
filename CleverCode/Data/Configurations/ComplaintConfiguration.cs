@@ -28,7 +28,7 @@ namespace CleverCode.Data.Configurations
                 .HasColumnType("datetime");
            
       builder.HasOne(c => c.Service)
-       .WithMany(s => s.Complaints) // لازم تكون موجودة في Service
+       .WithMany(s => s.Complaints)
        .HasForeignKey(c => c.Service_ID)
        .OnDelete(DeleteBehavior.SetNull);
 

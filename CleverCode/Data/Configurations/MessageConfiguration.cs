@@ -24,7 +24,7 @@ namespace CleverCode.Data.Configurations
             builder.Property(m => m.Email)
                 .HasMaxLength(150);
             builder.HasOne(c => c.Service)
-       .WithMany(s => s.Messages) // لازم تكون موجودة في Service
+       .WithMany(s => s.Messages) 
        .HasForeignKey(c => c.Service_ID)
        .OnDelete(DeleteBehavior.SetNull);
 

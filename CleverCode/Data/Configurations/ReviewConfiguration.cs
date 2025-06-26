@@ -23,7 +23,7 @@ namespace CleverCode.Data.Configurations
             builder.Property(r => r.Company)
                 .HasMaxLength(100);
             builder.HasOne(c => c.Service)
-        .WithMany(s => s.Reviews) // لازم تكون موجودة في Service
+        .WithMany(s => s.Reviews) 
         .HasForeignKey(c => c.Service_ID)
         .OnDelete(DeleteBehavior.SetNull);
 
