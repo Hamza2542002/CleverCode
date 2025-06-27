@@ -1,5 +1,6 @@
 ﻿using CleverCode.DTO;
 using CleverCode.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,14 +27,14 @@ namespace CleverCode.Controllers
             if (item == null) return NotFound();
             return Ok(item);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create(FAQDto dto)
         {
             var created = await _service.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.FAQ_ID }, created);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, FAQDto dto)
         {
@@ -41,7 +42,7 @@ namespace CleverCode.Controllers
             if (!updated) return NotFound();
             return NoContent();
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
