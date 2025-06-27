@@ -23,6 +23,25 @@ namespace CleverCode
             builder.Services.AddControllers();
             builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 
+            builder.Services.AddCors(options =>
+            {
+                // Policy for frontend apps that send credentials
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy.WithOrigins("https://clever-code-co.vercel.app", "http://localhost:5173")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+
+                // Policy for public APIs (no credentials)
+                options.AddPolicy("AllowAny", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -91,6 +110,7 @@ namespace CleverCode
                 app.MapOpenApi();
             }
             app.UseRouting();
+            app.UseCors("AllowFrontend");
             app.UseHttpsRedirection();
             app.UseMiddleware<ExceptionMiddleware>();
             app.UseAuthentication();

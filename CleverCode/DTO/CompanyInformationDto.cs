@@ -8,7 +8,7 @@ namespace CleverCode.DTO
         public string? Description { get; set; }
         public string? Mission { get; set; }
         public string? Vision { get; set; }
-        public CompanyValuesDto? Values { get; set; }
+        public List<CompanyValuesDto>? Values { get; set; }
         public ContactInfoDto? ContactInfo { get; set; }
         public string? Logo { get; set; }
         public string? SocialLink { get; set; }

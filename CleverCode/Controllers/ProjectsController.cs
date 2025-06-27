@@ -107,7 +107,7 @@ namespace CleverCode.Controllers
             {
                 return BadRequest(new ErrorResponse(HttpStatusCode.BadRequest, result.Message));
             }
-            return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Project added to service successfully."));
+            return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Project Deleted From service successfully."));
         }
     }
 }
