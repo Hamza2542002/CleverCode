@@ -4,6 +4,7 @@ using CleverCode.DTO;
 using CleverCode.Helpers;
 using CleverCode.Interfaces;
 using CleverCode.Models;
+using medical_app_db.Core.Interfaces;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -13,11 +14,14 @@ namespace CleverCode.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IImageService _cloudinaryService;
 
-        public ProjectService(ApplicationDbContext context, IMapper mapper)
+
+        public ProjectService(ApplicationDbContext context, IMapper mapper, IImageService imageService)
         {
             _context = context;
             _mapper = mapper;
+            _cloudinaryService = imageService;
         }
         public async Task<ServiceResult> GetAllProjectsAsync()
         {
@@ -118,7 +122,26 @@ namespace CleverCode.Services
         public async Task<ServiceResult> CreateProjectAsync(ProjectDto projectDto)
         {
             var projectEntity = _mapper.Map<Models.Project>(projectDto);
+            if(projectDto.Image is not null)
+                projectEntity.ImageUrl = await _cloudinaryService.UploadImageAsync(projectDto.Image);
             var entity = await _context.Projects.AddAsync(projectEntity);
+            await _context.SaveChangesAsync();
+            var service = await _context.Services
+                .FirstOrDefaultAsync(s => s.Service_ID == projectDto.ServiceId);
+            if (service == null)
+                return new ServiceResult()
+                {
+                    Data = null,
+                    Message = "Service not found",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+
+            var projectService = new Models.ProjectService()
+            {
+                Project_ID = entity.Entity.Project_ID,
+                Service_ID = service.Service_ID
+            };
+            await _context.ProjectServices.AddAsync(projectService);
             var result = await _context.SaveChangesAsync();
             if(result < 0)
                 return new ServiceResult()
@@ -127,10 +150,11 @@ namespace CleverCode.Services
                     Message = "Couldn't create project",
                     StatusCode = HttpStatusCode.BadRequest
                 };
-
+            var projectToreturnDto = _mapper.Map<ProjectDto>(entity.Entity);
+            projectToreturnDto.ServiceId = service.Service_ID;
             return new ServiceResult()
             {
-                Data = _mapper.Map<ProjectDto>(entity.Entity),
+                Data = projectToreturnDto,
                 Message = "Project created successfully",
                 StatusCode = HttpStatusCode.Created,
                 Success = true

@@ -5,6 +5,10 @@ using CleverCode.Interfaces;
 using CleverCode.Middlewares;
 using CleverCode.Models;
 using CleverCode.Services;
+using medical_app_api.Extentions;
+using medical_app_db.Core.Helpers;
+using medical_app_db.Core.Interfaces;
+using medical_app_db.EF.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +26,7 @@ namespace CleverCode
             // Add services
             builder.Services.AddControllers();
             builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+            builder.Services.Configure<CloudinatuSettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
             builder.Services.AddCors(options =>
             {
@@ -84,26 +89,16 @@ namespace CleverCode
             builder.Services.AddScoped<IServicesService, ServicesService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
             builder.Services.AddScoped<IProjectService, Services.ProjectService>();
+            builder.Services.AddScoped<IImageService, CloudinaryService>();
 
             // DB context
-            
+
             builder.Services.AddAutoMapper(m => m.AddProfile(new MappingProfiles()));
             builder.Services.AddOpenApi();
 
             var app = builder.Build();
 
-            // 🔄 Create Roles if not exist
-            using (var scope = app.Services.CreateScope())
-            {
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                string[] roles = { "Admin", "User" };
-
-                foreach (var role in roles)
-                {
-                    if (!await roleManager.RoleExistsAsync(role))
-                        await roleManager.CreateAsync(new IdentityRole(role));
-                }
-            }
+            await app.SeedAsync(app.Services);
 
             if (app.Environment.IsDevelopment())
             {

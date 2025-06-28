@@ -29,14 +29,14 @@ namespace CleverCode.Controllers
             if (item == null) return NotFound();
             return Ok(item);
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpPost]
         public async Task<IActionResult> Create(CompanyInformationDto dto)
         {
             var created = await _service.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created.Company_ID }, created);
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, CompanyInformationDto dto)
         {
@@ -44,7 +44,7 @@ namespace CleverCode.Controllers
             if (!updated) return NotFound();
             return NoContent();
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

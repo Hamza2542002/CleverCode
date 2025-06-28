@@ -2,6 +2,7 @@
 using CleverCode.Helpers;
 using CleverCode.Helpers.Error_Response;
 using CleverCode.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -36,7 +37,7 @@ namespace CleverCode.Controllers
                 return NotFound(new ErrorResponse(result?.StatusCode ?? HttpStatusCode.NotFound, result?.Message ?? "Not found"));
             return Ok(new BaseResponse(result.StatusCode, result.Data, result.Message));
         }
-
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpPost]
         public async Task<IActionResult> CreateTeamMember([FromBody] TeamMemberDto teamMemberDto)
         {
@@ -45,7 +46,7 @@ namespace CleverCode.Controllers
                 return BadRequest(new ErrorResponse(result.StatusCode, result.Message));
             return Ok(new BaseResponse(result.StatusCode, result.Data, result.Message));
         }
-
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTeamMember(int id, [FromBody] TeamMemberDto teamMemberDto)
         {
@@ -57,6 +58,7 @@ namespace CleverCode.Controllers
             return Ok(new BaseResponse(result.StatusCode, result.Data, result.Message));
         }
 
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTeamMember(int id)
         {

@@ -3,6 +3,7 @@ using CleverCode.Helpers;
 using CleverCode.Helpers.Error_Response;
 using CleverCode.Interfaces;
 using CleverCode.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -22,7 +23,6 @@ namespace CleverCode.Controllers
             _projectService = projectService;
         }
 
-        // GET: api/Projects
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProjectDto>>> GetAllProjects()
         {
@@ -30,7 +30,6 @@ namespace CleverCode.Controllers
             return Ok(new BaseResponse(HttpStatusCode.OK,result.Data,"Projects Fetched Successfulltu"));
         }
 
-        // GET: api/Projects/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ProjectDto>> GetProjectById(int id)
         {
@@ -52,10 +51,9 @@ namespace CleverCode.Controllers
             }
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Projects Fetched Successfulltu"));
         }
-
-        // POST: api/Projects
+        [Authorize(Roles = "Admin" , AuthenticationSchemes = "Bearer")]
         [HttpPost]
-        public async Task<ActionResult<ProjectDto>> CreateProject(ProjectDto projectDto)
+        public async Task<ActionResult<ProjectDto>> CreateProject([FromForm]ProjectDto projectDto)
         {
             var result = await _projectService.CreateProjectAsync(projectDto);
             if(!result.Success)
@@ -64,6 +62,7 @@ namespace CleverCode.Controllers
             }
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, result.Message));
         }
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpPost("service/{service_id}/{project_id}")]
         public async Task<ActionResult<ProjectDto>> AddProjectToService(int service_id, int project_id)
         {
@@ -74,7 +73,7 @@ namespace CleverCode.Controllers
             }
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Project added to service successfully."));
         }
-        // PUT: api/Projects/5
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpPut("{id}")]
         public async Task<ActionResult<ProjectDto>> UpdateProject(int id, ProjectDto projectDto)
         {
@@ -92,13 +91,14 @@ namespace CleverCode.Controllers
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Projects Updated Successfulltu"));
         }
 
-        // DELETE: api/Projects/5
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProject(int id)
         {
             var result = await _projectService.DeleteProjectAsync(id);
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Projects Deleted Successfulltu"));
         }
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpDelete("service/{service_id}/{project_id}")]
         public async Task<ActionResult<ProjectDto>> DeleteProjectFromService(int service_id, int project_id)
         {

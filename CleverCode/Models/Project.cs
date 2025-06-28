@@ -7,7 +7,8 @@
         public int Rate { get; set; }
         public string? Description { get; set; }
         public string? Tech { get; set; }
-
+        public string? ProjectLink { get; set; }
+        public string? ImageUrl { get; set; }
         public ICollection<ProjectService>? ProjectServices { get; set; }
     }
 

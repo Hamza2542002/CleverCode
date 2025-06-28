@@ -3,6 +3,7 @@ using CleverCode.Helpers.Error_Response;
 using CleverCode.Interfaces;
 using CleverCode.DTO;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CleverCode.Controllers
 {
@@ -72,7 +73,7 @@ namespace CleverCode.Controllers
                 return BadRequest(new ErrorResponse(result.StatusCode, result.Message));
             return Ok(new BaseResponse(result.StatusCode, result.Data, result.Message));
         }
-
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpPost("{reviewId}/approve")]
         public async Task<IActionResult> ApproveReview(int reviewId)
         {
@@ -82,6 +83,7 @@ namespace CleverCode.Controllers
             return Ok(new BaseResponse(result.StatusCode, result.Data, result.Message));
         }
 
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpPost("{reviewId}/reject")]
         public async Task<IActionResult> RejectReview(int reviewId)
         {

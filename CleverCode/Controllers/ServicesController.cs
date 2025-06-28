@@ -2,6 +2,7 @@
 using CleverCode.Helpers;
 using CleverCode.Helpers.Error_Response;
 using CleverCode.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Threading.Tasks;
@@ -35,7 +36,7 @@ namespace CleverCode.Controllers
                 return NotFound(new ErrorResponse(result.StatusCode, result.Message));
             return Ok(new BaseResponse( result.StatusCode, result.Data, result.Message ));
         }
-
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpPost]
         public async Task<IActionResult> CreateService([FromBody] ServiceDto serviceDto)
         {
@@ -45,6 +46,7 @@ namespace CleverCode.Controllers
             return Ok(new BaseResponse( result.StatusCode, result.Data, result.Message ));
         }
 
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateService(int id, [FromBody] ServiceDto serviceDto)
         {
@@ -56,6 +58,7 @@ namespace CleverCode.Controllers
             return Ok(new BaseResponse( result.StatusCode, result.Data, result.Message ));
         }
 
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteService(int id)
         {
