@@ -36,6 +36,10 @@ namespace CleverCode.Services
             {
                 var serviceDto = serviceDtos.FirstOrDefault(s => s.Service_ID == item.Service_ID);
                 serviceDto.Projects = _mapper.Map<List<ProjectDto>>(item.ProjectServices.Select(ps => ps.Project).ToList());
+                foreach (var project in serviceDto.Projects)
+                {
+                    project.Service_ID = item.Service_ID;
+                }
             }
             var projects = await _context.ProjectServices
                 .Select(s => s.Project)
