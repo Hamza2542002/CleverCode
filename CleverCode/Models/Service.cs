@@ -13,7 +13,7 @@ namespace CleverCode.Models
         public string? Category { get; set; }
         public string? TimeLine { get; set; }
 
-        public ICollection<ProjectService>? ProjectServices { get; set; }
+        public ICollection<ProjectService> ProjectServices { get; set; }
         public ICollection<Review>? Reviews { get; set; }
         public ICollection<Complaint>? Complaints { get; set; }
         public ICollection<Message>? Messages { get; set; }

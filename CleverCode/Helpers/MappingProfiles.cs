@@ -17,11 +17,15 @@ namespace CleverCode.Helpers
 
             CreateMap<TeamMember,TeamMemberDto>().ReverseMap();
             CreateMap<Service,ServiceDto>().ReverseMap();
+            
             CreateMap<Complaint,ComplaintDto>().ReverseMap();
             CreateMap<Review, ReviewDto>();
             CreateMap<ReviewDto, Review>();
             CreateMap<Message,MessageDto>().ReverseMap();
             CreateMap<Project,ProjectDto>().ReverseMap();
+            CreateMap<Project, ProjectDto>()
+                .ForMember(dest => dest.Service_ID,
+                        opt => opt.MapFrom(src => src.ProjectServices.FirstOrDefault().Service_ID));
 
         }
     }

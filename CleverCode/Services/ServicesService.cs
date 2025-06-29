@@ -24,10 +24,25 @@ namespace CleverCode.Services
 
         public async Task<ServiceResult> GetAllServicesAsync()
         {
-            var services = await _context.Services.ToListAsync();
+            var services = await _context.Services
+                .Include(s => s.ProjectServices)
+                .ThenInclude(ps => ps.Project)
+                .Include(s => s.Reviews)
+                .Include(s => s.Complaints)
+                .Include(s => s.Messages)
+                .ToListAsync();
+            var serviceDtos = _mapper.Map<List<ServiceDto>>(services);
+            foreach (var item in services)
+            {
+                var serviceDto = serviceDtos.FirstOrDefault(s => s.Service_ID == item.Service_ID);
+                serviceDto.Projects = _mapper.Map<List<ProjectDto>>(item.ProjectServices.Select(ps => ps.Project).ToList());
+            }
+            var projects = await _context.ProjectServices
+                .Select(s => s.Project)
+                .ToListAsync();
             return new ServiceResult()
             {
-                Data = _mapper.Map<List<ServiceDto>>(services),
+                Data = serviceDtos,
                 Message = "Services retrieved successfully",
                 StatusCode = HttpStatusCode.OK,
                 Success = true
@@ -44,8 +59,9 @@ namespace CleverCode.Services
                     Message = "Service not found",
                     StatusCode = HttpStatusCode.NotFound
                 };
-            var projectServices = await _context.ProjectServices
+            var projects = await _context.ProjectServices
                 .Where(ps => ps.Service_ID == service.Service_ID)
+                .Select(ps => ps.Project)
                 .ToListAsync();
             var reviews = await _context.Reviews
                 .Where(r => r.Service_ID == service.Service_ID)
@@ -56,9 +72,24 @@ namespace CleverCode.Services
             var messages = await _context.Messages
                 .Where(m => m.Service_ID == service.Service_ID)
                 .ToListAsync();
+            var serviceDto = new ServiceDto
+            {
+                Service_ID = service.Service_ID,
+                Title = service.Title,
+                Icon = service.Icon,
+                Description = service.Description,
+                Pricing = service.Pricing,
+                Feature = service.Feature,
+                Category = service.Category,
+                TimeLine = service.TimeLine,
+                Projects = _mapper.Map<List<ProjectDto>>(projects),
+                Reviews = _mapper.Map<List<ReviewDto>>(reviews),
+                Complaints = _mapper.Map<List<ComplaintDto>>(complaints),
+                Messages = _mapper.Map<List<MessageDto>>(messages)
+            };
             return new ServiceResult()
             {
-                Data = _mapper.Map<ServiceDto>(service),
+                Data = serviceDto,
                 Message = service != null ? "Service retrieved successfully" : "Service not found",
                 StatusCode = service != null ? HttpStatusCode.OK : HttpStatusCode.NotFound,
                 Success = service != null

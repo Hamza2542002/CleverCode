@@ -127,7 +127,7 @@ namespace CleverCode.Services
             var entity = await _context.Projects.AddAsync(projectEntity);
             await _context.SaveChangesAsync();
             var service = await _context.Services
-                .FirstOrDefaultAsync(s => s.Service_ID == projectDto.ServiceId);
+                .FirstOrDefaultAsync(s => s.Service_ID == projectDto.Service_ID);
             if (service == null)
                 return new ServiceResult()
                 {
@@ -151,7 +151,7 @@ namespace CleverCode.Services
                     StatusCode = HttpStatusCode.BadRequest
                 };
             var projectToreturnDto = _mapper.Map<ProjectDto>(entity.Entity);
-            projectToreturnDto.ServiceId = service.Service_ID;
+            projectToreturnDto.Service_ID = service.Service_ID;
             return new ServiceResult()
             {
                 Data = projectToreturnDto,
