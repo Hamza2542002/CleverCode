@@ -9,7 +9,7 @@
         public string? Tech { get; set; }
         public string? ProjectLink { get; set; }
         public int Service_ID { get; set; }
-        public IFormFile? Image { get; set; }
+        public List<IFormFile>? Image { get; set; }
         public string? ImageUrl { get; set; }
     }
 }

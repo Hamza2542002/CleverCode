@@ -58,7 +58,7 @@ namespace CleverCode.Controllers
             var result = await _projectService.CreateProjectAsync(projectDto);
             if(!result.Success)
             {
-                return BadRequest(new ErrorResponse(HttpStatusCode.BadRequest, "Failed to create project."));
+                return BadRequest(new ErrorResponse(HttpStatusCode.BadRequest, result.Message));
             }
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, result.Message));
         }
@@ -79,13 +79,13 @@ namespace CleverCode.Controllers
         {
             if (id != projectDto.Project_ID)
             {
-                return BadRequest(new ErrorResponse(HttpStatusCode.BadRequest));
+                return BadRequest(new ErrorResponse(HttpStatusCode.BadRequest,"Miss match ID"));
             }
 
             var result = await _projectService.UpdateProjectAsync(id, projectDto);
             if (!result.Success)
             {
-                return NotFound(new ErrorResponse(HttpStatusCode.NotFound));
+                return NotFound(new ErrorResponse(HttpStatusCode.NotFound,result.Message));
             }
 
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Projects Updated Successfulltu"));

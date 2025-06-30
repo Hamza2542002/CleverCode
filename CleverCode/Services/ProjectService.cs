@@ -5,6 +5,7 @@ using CleverCode.Helpers;
 using CleverCode.Interfaces;
 using CleverCode.Models;
 using medical_app_db.Core.Interfaces;
+using Microsoft.Build.Evaluation;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -110,22 +111,30 @@ namespace CleverCode.Services
         }
         public async Task<ServiceResult> GetProjectByIdAsync(int id)
         {
-            var projects = await _context.Projects.FirstOrDefaultAsync();
+            var project = await _context.Projects.Include(e => e.ProjectServices).FirstOrDefaultAsync(p => p.Project_ID == id);
             return new ServiceResult()
             {
-                Data = _mapper.Map<ProjectDto>(projects),
-                Message = projects != null ? "Project retrieved successfully" : "Project not found",
-                StatusCode = projects != null ? HttpStatusCode.OK : HttpStatusCode.NotFound,
-                Success = projects != null
+                Data = _mapper.Map<ProjectDto>(project),
+                Message = project != null ? "Project retrieved successfully" : "Project not found",
+                StatusCode = project != null ? HttpStatusCode.OK : HttpStatusCode.NotFound,
+                Success = project != null
             };
         }
         public async Task<ServiceResult> CreateProjectAsync(ProjectDto projectDto)
         {
             var projectEntity = _mapper.Map<Models.Project>(projectDto);
-            if(projectDto.Image is not null)
-                projectEntity.ImageUrl = await _cloudinaryService.UploadImageAsync(projectDto.Image);
             var entity = await _context.Projects.AddAsync(projectEntity);
+            
             await _context.SaveChangesAsync();
+            if(projectDto.Image is not null)
+            {
+                foreach (var image in projectDto.Image)
+                {
+                    projectEntity.ImageUrl += $"{await _cloudinaryService.UploadImageAsync(image, $"project-{entity.Entity.Project_ID}-{image.Name}")},";   
+                }
+            }
+            
+            
             var service = await _context.Services
                 .FirstOrDefaultAsync(s => s.Service_ID == projectDto.Service_ID);
             if (service == null)
@@ -172,12 +181,41 @@ namespace CleverCode.Services
                     Message = "Project not found",
                     StatusCode = HttpStatusCode.NotFound
                 };
+            project.ImageUrl = string.Empty;
+            if (projectDto.Image is not null)
+            {
+                foreach (var image in projectDto.Image)
+                {
+                    project.ImageUrl += $"{await _cloudinaryService.UpdateImageAsync(image, $"project-{project.Project_ID}-{image.Name}")},";
+                }
+            }
+
             project.Rate = projectDto.Rate;
             project.Title = projectDto.Title;
             project.Description = projectDto.Description;
             project.Tech = projectDto.Tech;
+            project.ProjectLink = projectDto.ProjectLink;
+
             var updatedEntity = _context.Projects.Update(project);
+
+            var projectService = await _context.ProjectServices
+                   .FirstOrDefaultAsync(s => s.Project_ID == project.Project_ID);
+            if(projectService is not null)
+                _context.ProjectServices.Remove(projectService);
+
+            if(await _context.Services.FirstOrDefaultAsync(s => s.Service_ID == projectDto.Service_ID) is null)
+            {
+                return new ServiceResult()
+                {
+                    Data = null,
+                    Message = "Service not found",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
+
+            await AddProjectToService(projectDto.Service_ID, project.Project_ID);
             var result = await _context.SaveChangesAsync();
+
             if(result < 0)
                 return new ServiceResult()
                 {
@@ -185,9 +223,10 @@ namespace CleverCode.Services
                     Message = "Couldn't update project",
                     StatusCode = HttpStatusCode.BadRequest
                 };
+
             return new ServiceResult() 
             { 
-                Data = _mapper.Map<ProjectDto>(updatedEntity.Entity),
+                Data = _mapper.Map<ProjectDto>(project),
                 Message = "Project created successfully", 
                 StatusCode = HttpStatusCode.Created, Success = true 
             };
@@ -202,6 +241,7 @@ namespace CleverCode.Services
                     Message = "Project not found",
                     StatusCode = HttpStatusCode.NotFound
                 };
+            await _cloudinaryService.DeleteImageAsync(project.Title);
             _context.Projects.Remove(project);
             var result = _context.SaveChangesAsync();
             if (result.Result < 0)

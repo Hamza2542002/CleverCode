@@ -20,12 +20,13 @@ namespace medical_app_db.EF.Services
             );
             _cloudinary = new Cloudinary(account);
         }
-        public async Task<string?> UploadImageAsync(IFormFile image)
+        public async Task<string?> UploadImageAsync(IFormFile image,string name)
         {
             using var stream = image.OpenReadStream();
             var uploadParams = new ImageUploadParams
             {
                 File = new FileDescription(image.FileName, stream),
+                PublicId = $"{name}",
                 Transformation = new Transformation()
                     .Width(800).Height(800).Crop("limit")  // Resize to limit
                     .Quality("auto")                       // Automatic compression
@@ -35,23 +36,20 @@ namespace medical_app_db.EF.Services
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
             return uploadResult.SecureUrl.ToString();
         }
-        public async Task<bool> DeleteImageAsync(Guid id)
+        public async Task<bool> DeleteImageAsync(string name)
         {
-            var delteResult = await _cloudinary.DestroyAsync(new DeletionParams(id.ToString()));
+            var delteResult = await _cloudinary.DestroyAsync(new DeletionParams(name));
 
             if (delteResult.StatusCode == System.Net.HttpStatusCode.OK)
                 return true;
 
             return false;
         }
-        public async Task<string?> UpdateImageAsync(IFormFile? image, Guid id)
+        public async Task<string?> UpdateImageAsync(IFormFile? image, string name)
         {
-            if (id == Guid.Empty || image == null)
-                return null;
+            await DeleteImageAsync(name);
 
-            await DeleteImageAsync(id);
-
-            return await UploadImageAsync(image);
+            return await UploadImageAsync(image, name);
         }
     }
 }

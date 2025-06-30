@@ -22,8 +22,9 @@ namespace CleverCode.Helpers
             CreateMap<Review, ReviewDto>();
             CreateMap<ReviewDto, Review>();
             CreateMap<Message,MessageDto>().ReverseMap();
-            CreateMap<Project,ProjectDto>().ReverseMap();
+            CreateMap<ProjectDto,Project>();
             CreateMap<Project, ProjectDto>()
+                .ForMember(d => d.ProjectLink , o =>o.MapFrom(s => s.ProjectLink))
                 .ForMember(dest => dest.Service_ID,
                         opt => opt.MapFrom(src => src.ProjectServices.FirstOrDefault().Service_ID));
 
