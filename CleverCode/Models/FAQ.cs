@@ -1,10 +1,10 @@
-﻿namespace CleverCode.Models
+﻿public class FAQ
 {
-    public class FAQ
-    {
-        public int FAQ_ID { get; set; }
-        public string? Questions { get; set; }
-        public string? Answer { get; set; }
-    }
+    public int FAQ_ID { get; set; }
 
+    public string? QuestionsEn { get; set; }
+    public string? QuestionsAr { get; set; }
+
+    public string? AnswerEn { get; set; }
+    public string? AnswerAr { get; set; }
 }

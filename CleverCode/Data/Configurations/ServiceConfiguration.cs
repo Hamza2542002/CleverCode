@@ -12,8 +12,13 @@ namespace CleverCode.Data.Configurations
                 builder.Property(s => s.Title)
                     .IsRequired()
                     .HasMaxLength(100);
+            builder.Property(s => s.TitleAr)
+    .HasMaxLength(100);
 
-                builder.Property(s => s.Icon)
+            builder.Property(s => s.DescriptionAr)
+                .HasMaxLength(500);
+
+            builder.Property(s => s.Icon)
                     .HasMaxLength(200);
 
                 builder.Property(s => s.Description)

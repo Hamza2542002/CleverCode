@@ -15,15 +15,20 @@ namespace CleverCode.Services
             _context = context;
         }
 
-        public async Task<ComplaintDto> CreateAsync(ComplaintDto dto)
+        public async Task<ComplaintDto> CreateAsync(ComplaintDto dto, string? lang = "en")
         {
             var complaint = new Complaint
             {
-                Type = dto.Type,
-                Description = dto.Description,
-                Status = dto.Status,
-                Priority = dto.Priority,
-                Name = dto.Name,
+                Type_AR = lang == "ar" ? dto.Type : null,
+                Type_EN = lang == "en" ? dto.Type : null,
+                Description_AR = lang == "ar" ? dto.Description : null,
+                Description_EN = lang == "en" ? dto.Description : null,
+                Status_AR = lang == "ar" ? dto.Status : null,
+                Status_EN = lang == "en" ? dto.Status : null,
+                Priority_AR = lang == "ar" ? dto.Priority : null,
+                Priority_EN = lang == "en" ? dto.Priority : null,
+                Name_AR = lang == "ar" ? dto.Name : null,
+                Name_EN = lang == "en" ? dto.Name : null,
                 Date = dto.Date,
                 Service_ID = dto.Service_ID
             };
@@ -35,26 +40,24 @@ namespace CleverCode.Services
             return dto;
         }
 
-        public async Task<IEnumerable<ComplaintDto>> GetAllAsync()
+        public async Task<IEnumerable<ComplaintDto>> GetAllAsync(string? lang = "en")
         {
-            Console.WriteLine("GetAllAsync called");
             return await _context.Complaints
                 .Select(c => new ComplaintDto
                 {
                     Complaint_ID = c.Complaint_ID,
-                    Type = c.Type,
-                    Description = c.Description,
-                    Status = c.Status,
-                    Priority = c.Priority,
-                    Name = c.Name,
+                    Type = lang == "ar" ? c.Type_AR : c.Type_EN,
+                    Description = lang == "ar" ? c.Description_AR : c.Description_EN,
+                    Status = lang == "ar" ? c.Status_AR : c.Status_EN,
+                    Priority = lang == "ar" ? c.Priority_AR : c.Priority_EN,
+                    Name = lang == "ar" ? c.Name_AR : c.Name_EN,
                     Date = c.Date,
                     Service_ID = c.Service_ID
                 })
                 .ToListAsync();
         }
 
-
-        public async Task<ComplaintDto?> GetByIdAsync(int id)
+        public async Task<ComplaintDto?> GetByIdAsync(int id, string? lang = "en")
         {
             var c = await _context.Complaints.FindAsync(id);
             if (c == null) return null;
@@ -62,11 +65,11 @@ namespace CleverCode.Services
             return new ComplaintDto
             {
                 Complaint_ID = c.Complaint_ID,
-                Type = c.Type,
-                Description = c.Description,
-                Status = c.Status,
-                Priority = c.Priority,
-                Name = c.Name,
+                Type = lang == "ar" ? c.Type_AR : c.Type_EN,
+                Description = lang == "ar" ? c.Description_AR : c.Description_EN,
+                Status = lang == "ar" ? c.Status_AR : c.Status_EN,
+                Priority = lang == "ar" ? c.Priority_AR : c.Priority_EN,
+                Name = lang == "ar" ? c.Name_AR : c.Name_EN,
                 Date = c.Date,
                 Service_ID = c.Service_ID
             };
@@ -77,15 +80,19 @@ namespace CleverCode.Services
             var complaint = await _context.Complaints.FindAsync(id);
             if (complaint == null) return false;
 
-            complaint.Type = dto.Type;
-            complaint.Description = dto.Description;
-            complaint.Status = dto.Status;
-            complaint.Priority = dto.Priority;
-            complaint.Name = dto.Name;
+            complaint.Type_AR = dto.Type;
+            complaint.Type_EN = dto.Type;
+            complaint.Description_AR = dto.Description;
+            complaint.Description_EN = dto.Description;
+            complaint.Status_AR = dto.Status;
+            complaint.Status_EN = dto.Status;
+            complaint.Priority_AR = dto.Priority;
+            complaint.Priority_EN = dto.Priority;
+            complaint.Name_AR = dto.Name;
+            complaint.Name_EN = dto.Name;
             complaint.Date = dto.Date;
             complaint.Service_ID = dto.Service_ID;
 
-            _context.Complaints.Update(complaint);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -101,4 +108,3 @@ namespace CleverCode.Services
         }
     }
 }
-

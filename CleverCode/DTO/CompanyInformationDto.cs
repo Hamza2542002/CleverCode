@@ -1,19 +1,19 @@
-﻿
-namespace CleverCode.DTO
+﻿public class CompanyInformationDto
 {
-    public class CompanyInformationDto
-    {
-            public int Company_ID { get; set; }
-            public string? Name { get; set; }
-        public string? Description { get; set; }
-        public string? Mission { get; set; }
-        public string? Vision { get; set; }
-        public List<CompanyValuesDto>? Values { get; set; }
-        public ContactInfoDto? ContactInfo { get; set; }
-        public string? Logo { get; set; }
-        public string? SocialLink { get; set; }
-        public string? Story { get; set; }
-        public string? ResponseTime { get; set; }
-    }
+    public int Company_ID { get; set; }
+    public string? NameEn { get; set; }
+    public string? NameAr { get; set; }
+    public string? DescriptionEn { get; set; }
+    public string? DescriptionAr { get; set; }
+    public string? MissionEn { get; set; }
+    public string? MissionAr { get; set; }
+    public string? VisionEn { get; set; }
+    public string? VisionAr { get; set; }
+    public string? StoryEn { get; set; }
+    public string? StoryAr { get; set; }
+    public string? ResponseTime { get; set; }
+    public string? Logo { get; set; }
+    public string? SocialLink { get; set; }
+    public List<CompanyValuesDto>? Values { get; set; }
+    public ContactInfoDto? ContactInfo { get; set; }
 }
-

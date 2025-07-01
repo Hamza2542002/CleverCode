@@ -9,15 +9,19 @@ namespace CleverCode.Data.Configurations
         {
             builder.HasKey(p => p.Project_ID);
 
-            builder.Property(p => p.Title)
-                .IsRequired()
+            builder.Property(p => p.TitleAr)
+               
                 .HasMaxLength(100);
 
+            builder.Property(p => p.TitleEn)
+              
+               .HasMaxLength(100);
             builder.Property(p => p.Rate);
 
-            builder.Property(p => p.Description)
+            builder.Property(p => p.DescriptionAr)
                 .HasMaxLength(500);
-
+            builder.Property(p => p.DescriptionEn)
+              .HasMaxLength(500);
             builder.Property(p => p.Tech)
                 .HasMaxLength(200);
         }

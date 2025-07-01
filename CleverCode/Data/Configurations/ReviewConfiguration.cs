@@ -9,8 +9,11 @@ namespace CleverCode.Data.Configurations
         {
             builder.HasKey(r => r.Review_ID);
 
-            builder.Property(r => r.Comment)
+            builder.Property(r => r.CommentAr)
                 .HasMaxLength(500);
+
+            builder.Property(r => r.CommentEn)
+               .HasMaxLength(500);
 
             builder.Property(r => r.Rate);
 
@@ -23,7 +26,7 @@ namespace CleverCode.Data.Configurations
             builder.Property(r => r.Company)
                 .HasMaxLength(100);
             builder.HasOne(c => c.Service)
-        .WithMany(s => s.Reviews) 
+        .WithMany(s => s.Reviews)
         .HasForeignKey(c => c.Service_ID)
         .OnDelete(DeleteBehavior.SetNull);
 
@@ -31,4 +34,3 @@ namespace CleverCode.Data.Configurations
         }
     }
 }
-

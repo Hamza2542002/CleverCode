@@ -4,9 +4,9 @@ namespace CleverCode.Interfaces
 {
     public interface IComplaintService
     {
-        Task<IEnumerable<ComplaintDto>> GetAllAsync();
-        Task<ComplaintDto?> GetByIdAsync(int id);
-        Task<ComplaintDto> CreateAsync(ComplaintDto dto);
+        Task<IEnumerable<ComplaintDto>> GetAllAsync(string? lang = "en");
+        Task<ComplaintDto?> GetByIdAsync(int id, string? lang = "en");
+        Task<ComplaintDto> CreateAsync(ComplaintDto dto, string? lang = "en");
         Task<bool> UpdateAsync(int id, ComplaintDto dto);
         Task<bool> DeleteAsync(int id);
     }

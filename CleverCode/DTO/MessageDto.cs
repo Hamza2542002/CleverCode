@@ -3,7 +3,11 @@
     public class MessageDto
     {
         public int Message_ID { get; set; }
-        public string? MessageText { get; set; }
+
+        // دعم اللغات للنص
+        public string? MessageTextEn { get; set; }
+        public string? MessageTextAr { get; set; }
+
         public string? Name { get; set; }
         public DateTime Date { get; set; }
         public string? Company { get; set; }

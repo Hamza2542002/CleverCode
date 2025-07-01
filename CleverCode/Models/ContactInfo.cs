@@ -1,9 +1,8 @@
-﻿namespace CleverCode.Models
+﻿public class ContactInfo
 {
-    public class ContactInfo
-    {
-        public string? Email { get; set; } = string.Empty;
-        public string? Phone { get; set; } = string.Empty;
-        public string? Address { get; set; } = string.Empty;
-    }
+    public string? Email { get; set; }
+    public string? Phone { get; set; }
+
+    public string? AddressEn { get; set; }
+    public string? AddressAr { get; set; }
 }
