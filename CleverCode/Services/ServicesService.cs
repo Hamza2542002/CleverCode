@@ -134,6 +134,14 @@ namespace CleverCode.Services
                     StatusCode = HttpStatusCode.NotFound
                 };
             }
+            service.Category = serviceDto.Category;
+            service.Description = serviceDto.Description;
+            service.Feature = serviceDto.Feature;
+            service.Icon = serviceDto.Icon;
+            service.Pricing = serviceDto.Pricing;
+            service.TimeLine = serviceDto.TimeLine;
+            service.Title = serviceDto.Title;
+
             _context.Services.Update(service);
             var result = await _context.SaveChangesAsync();
             if (result < 0)
