@@ -76,6 +76,13 @@ namespace CleverCode.Services
             var messages = await _context.Messages
                 .Where(m => m.Service_ID == service.Service_ID)
                 .ToListAsync();
+
+            var projectsDto = _mapper.Map<List<ProjectDto>>(projects);
+            foreach (var item in projectsDto)
+            {
+                item.Service_ID = service.Service_ID;
+            }
+
             var serviceDto = new ServiceDto
             {
                 Service_ID = service.Service_ID,
@@ -86,7 +93,7 @@ namespace CleverCode.Services
                 Feature = service.Feature,
                 Category = service.Category,
                 TimeLine = service.TimeLine,
-                Projects = _mapper.Map<List<ProjectDto>>(projects),
+                Projects = projectsDto,
                 Reviews = _mapper.Map<List<ReviewDto>>(reviews),
                 Complaints = _mapper.Map<List<ComplaintDto>>(complaints),
                 Messages = _mapper.Map<List<MessageDto>>(messages)

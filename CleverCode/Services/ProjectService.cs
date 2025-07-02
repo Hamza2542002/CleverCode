@@ -26,10 +26,18 @@ namespace CleverCode.Services
         }
         public async Task<ServiceResult> GetAllProjectsAsync()
         {
-            var projects = await _context.Projects.ToListAsync();
+            var projects = await _context.Projects
+                .Include(p => p.ProjectServices)
+                .ToListAsync();
+            var dto = _mapper.Map<List<ProjectDto>>(projects);
+            foreach (var item in dto)
+            {
+                var projectServices = projects.FirstOrDefault(p => p.Project_ID == item.Project_ID)?.ProjectServices;
+                item.Service_ID = projectServices.Select(ps => ps.Service_ID).FirstOrDefault();
+            }
             return new ServiceResult ()
             {
-                Data = _mapper.Map<List<ProjectDto>>(projects),
+                Data = dto,
                 Message = "Projects retrieved successfully",
                 StatusCode = HttpStatusCode.OK,
                 Success = true
@@ -85,6 +93,17 @@ namespace CleverCode.Services
                     StatusCode = HttpStatusCode.BadRequest
                 };
             }
+            var existingProjectService = await _context.ProjectServices
+                .FirstOrDefaultAsync(ps => ps.Service_ID == serviceId && ps.Project_ID == projectId);
+            if(existingProjectService != null)
+            {
+                return new ServiceResult()
+                {
+                    Data = _mapper.Map<ProjectDto>(project),
+                    Message = "Project already exists in service",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
             var projectService = new Models.ProjectService()
             {
                 Project_ID = projectId,
@@ -111,7 +130,18 @@ namespace CleverCode.Services
         }
         public async Task<ServiceResult> GetProjectByIdAsync(int id)
         {
-            var project = await _context.Projects.Include(e => e.ProjectServices).FirstOrDefaultAsync(p => p.Project_ID == id);
+            var project = await _context.Projects
+                .Include(e => e.ProjectServices)
+                .FirstOrDefaultAsync(p => p.Project_ID == id);
+            if (project == null)
+                return new ServiceResult()
+                {
+                    Data = null,
+                    Message = "Project not found",
+                    StatusCode = HttpStatusCode.NotFound
+                };
+            var dto = _mapper.Map<ProjectDto>(project);
+            dto.Service_ID = project.ProjectServices.FirstOrDefault()?.Service_ID ?? 0;
             return new ServiceResult()
             {
                 Data = _mapper.Map<ProjectDto>(project),
@@ -144,7 +174,17 @@ namespace CleverCode.Services
                     Message = "Service not found",
                     StatusCode = HttpStatusCode.BadRequest
                 };
-
+            var existingProjectService = await _context.ProjectServices
+                .FirstOrDefaultAsync(ps => ps.Service_ID == service.Service_ID && ps.Project_ID == entity.Entity.Project_ID);
+            if (existingProjectService != null)
+            {
+                return new ServiceResult()
+                {
+                    Data = _mapper.Map<ProjectDto>(entity.Entity),
+                    Message = "Project already exists in service",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+            }
             var projectService = new Models.ProjectService()
             {
                 Project_ID = entity.Entity.Project_ID,
