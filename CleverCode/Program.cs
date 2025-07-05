@@ -77,7 +77,8 @@ namespace CleverCode
             // Identity + Roles
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddRoles<IdentityRole>() // ✅ Add this
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
             // Custom services
             builder.Services.AddScoped<IComplaintService, ComplaintService>();

@@ -18,7 +18,7 @@ namespace medical_app_api.Extentions
             try
             {
                 await _dbContext.Database.MigrateAsync();
-                string[] roles = { "Admin", "User" };
+                string[] roles = { "Admin", "User", "super-Admin" };
 
                 foreach (var role in roles)
                 {

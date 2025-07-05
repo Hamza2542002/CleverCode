@@ -1,4 +1,5 @@
-﻿using CleverCode.Helpers;
+﻿using CleverCode.DTO;
+using CleverCode.Helpers;
 using CleverCode.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,57 @@ public class AuthServices : IAuthServices
     {
         _userManager = userManager;
         _jwt = jwt.Value;
+    }
+
+    public async Task<AuthModels> DeleteAdminAsync(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if(user == null)
+        {
+            return new AuthModels
+            {
+                Message = "Admin not found"
+            };
+        }
+        await _userManager.DeleteAsync(user);
+        return new AuthModels
+        {
+            Message = "Admin deleted successfully"
+        };
+    }
+
+    public async Task<List<AdminDto>> GetAllAdminsAsync()
+    {
+        var admins = await _userManager.GetUsersInRoleAsync("Admin");
+        var result = new List<AdminDto>();
+        foreach (var admin in admins)
+        {
+            result.Add(new AdminDto
+            {
+                Id = admin.Id,
+                UserName = admin.UserName,
+                Email = admin.Email,
+                PhoneNumber = admin.PhoneNumber
+            });
+        }
+
+        return result;
+    }
+    public async Task<AdminDto?> GetAdminByIdAsync(string id)
+    {
+        var admin = await _userManager.FindByIdAsync(id);
+        if(admin == null)
+        {
+            return null; 
+        }
+        return new AdminDto()
+        {
+            Id = admin.Id,
+            UserName = admin.UserName,
+            Email = admin.Email,
+            PhoneNumber = admin.PhoneNumber
+        };
+
     }
 
     public async Task<AuthModels> GetTokenAsync(TokenRequestModel model)
@@ -82,6 +134,7 @@ public class AuthServices : IAuthServices
         {
             UserName = model.Username,
             Email = model.Email,
+            PhoneNumber = model.PhoneNumber,
             EmailConfirmed = true
         };
 
@@ -136,5 +189,43 @@ public class AuthServices : IAuthServices
             Token = tokenHandler.WriteToken(token),
             ExpiresOn = tokenDescriptor.Expires ?? DateTime.UtcNow.AddDays(_jwt.DurationInDays)
         };
+    }
+
+    public async Task<AuthModels> UpdateAdminAsync(string id, RegisterModel model)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+        {
+            return new AuthModels
+            {
+                Message = "Admin not found",
+                IsAuthenticated = false
+            };
+        }
+        user.UserName = model.Username;
+        user.Email = model.Email;
+        user.PhoneNumber = model.PhoneNumber;
+
+        var updateToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await _userManager.ResetPasswordAsync(user, updateToken, model.Password);
+
+        await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            return new AuthModels
+            {
+                Message = errors,
+                IsAuthenticated = false
+            };
+        }
+        return new AuthModels
+        {
+            Email = user.Email,
+            Username = user.UserName,
+            PhoneNumber = user.PhoneNumber,
+            IsAuthenticated = true,
+            Message = "Admin Updated Successfully"
+        };  
     }
 }
