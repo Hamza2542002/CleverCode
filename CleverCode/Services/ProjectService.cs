@@ -45,7 +45,8 @@ namespace CleverCode.Services
                 Rate = p.Rate,
                 Tech = p.Tech,
                 ProjectLink = p.ProjectLink,
-                ImageUrl = p.ImageUrl
+                ImageUrl = p.ImageUrl,
+                Service_ID = p.ProjectServices.FirstOrDefault()?.Service_ID ?? 0
             };
         }
 
@@ -53,7 +54,6 @@ namespace CleverCode.Services
         {
             var projects = await _context.Projects.Include(p => p.ProjectServices).ToListAsync();
             var localized = projects.Select(p => LocalizeProject(p)).ToList();
-
             return new ServiceResult
             {
                 Data = localized,
@@ -74,12 +74,10 @@ namespace CleverCode.Services
                     StatusCode = HttpStatusCode.NotFound
                 };
 
-            var dto = _mapper.Map<ProjectDto>(project);
-            dto.Service_ID = project.ProjectServices.FirstOrDefault()?.Service_ID ?? 0;
-
+            var localized = LocalizeProject(project);
             return new ServiceResult
             {
-                Data = dto,
+                Data = localized,
                 Message = "Project retrieved successfully",
                 StatusCode = HttpStatusCode.OK,
                 Success = true
@@ -267,10 +265,11 @@ namespace CleverCode.Services
                 await _context.ProjectServices.AddAsync(relation);
                 await _context.SaveChangesAsync();
             }
-
+            var dto = _mapper.Map<ProjectDto>(project);
+            dto.Service_ID = projectDto.Service_ID;
             return new ServiceResult
             {
-                Data = LocalizeProject(project),
+                Data = dto,
                 Message = "Project created",
                 StatusCode = HttpStatusCode.Created,
                 Success = true
@@ -311,7 +310,18 @@ namespace CleverCode.Services
 
             if (projectDto.Service_ID != 0)
             {
-                var existingRelation = project.ProjectServices.FirstOrDefault();
+                var service = await _context.Services.FindAsync(projectDto.Service_ID);
+                if (service == null)
+                {
+                    return new ServiceResult
+                    {
+                        Data = null,
+                        Message = "Service not found",
+                        StatusCode = HttpStatusCode.BadRequest
+                    };
+                }
+                var existingRelation = await _context.ProjectServices
+                    .FirstOrDefaultAsync(ps => ps.Project_ID == projectDto.Project_ID);
 
                 if (existingRelation == null)
                 {
@@ -324,8 +334,13 @@ namespace CleverCode.Services
                 }
                 else if (existingRelation.Service_ID != projectDto.Service_ID)
                 {
-                    existingRelation.Service_ID = projectDto.Service_ID;
-                    _context.ProjectServices.Update(existingRelation);
+                    _context.ProjectServices.Remove(existingRelation);
+                    var newRelation = new ProjectService
+                    {
+                        Project_ID = project.Project_ID,
+                        Service_ID = projectDto.Service_ID
+                    };
+                    await _context.ProjectServices.AddAsync(newRelation);
                 }
             }
 

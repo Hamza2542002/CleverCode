@@ -9,5 +9,6 @@
         public string? Tech { get; set; }
         public string? ProjectLink { get; set; }
         public string? ImageUrl { get; set; }
+        public int Service_ID { get; set; }
     }
 }
