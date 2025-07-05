@@ -62,23 +62,39 @@ namespace CleverCode.Services
             };
         }
 
-        public async Task<ServiceResult> GetReviewByIdAsync(int id)
-        {
-            var r = await _context.Reviews.FindAsync(id);
+        //public async Task<ServiceResult> GetReviewByIdAsync(int id)
+        //{
+        //    var r = await _context.Reviews.FindAsync(id);
 
-            if (r == null)
-            {
-                return new ServiceResult
-                {
-                    Message = "Review not found",
-                    StatusCode = HttpStatusCode.NotFound
-                };
-            }
+        //    if (r == null)
+        //    {
+        //        return new ServiceResult
+        //        {
+        //            Message = "Review not found",
+        //            StatusCode = HttpStatusCode.NotFound
+        //        };
+        //    }
+
+        //    return new ServiceResult
+        //    {
+        //        Data = LocalizeReview(r),
+        //        Message = "Review retrieved successfully",
+        //        StatusCode = HttpStatusCode.OK,
+        //        Success = true
+        //    };
+        //}
+        public async Task<ServiceResult> GetApprovedReviewsAsync()
+        {
+            var approvedReviews = await _context.Reviews
+                .Where(r => r.IsApproved)
+                .ToListAsync();
+
+            var localized = approvedReviews.Select(r => LocalizeReview(r)).ToList();
 
             return new ServiceResult
             {
-                Data = LocalizeReview(r),
-                Message = "Review retrieved successfully",
+                Data = localized,
+                Message = "Approved reviews retrieved successfully",
                 StatusCode = HttpStatusCode.OK,
                 Success = true
             };
@@ -175,28 +191,28 @@ namespace CleverCode.Services
             };
         }
 
-        public async Task<ServiceResult> DeleteReviewAsync(int id)
-        {
-            var review = await _context.Reviews.FindAsync(id);
-            if (review == null)
-            {
-                return new ServiceResult
-                {
-                    Message = "Review not found",
-                    StatusCode = HttpStatusCode.NotFound
-                };
-            }
+        //public async Task<ServiceResult> DeleteReviewAsync(int id)
+        //{
+        //    var review = await _context.Reviews.FindAsync(id);
+        //    if (review == null)
+        //    {
+        //        return new ServiceResult
+        //        {
+        //            Message = "Review not found",
+        //            StatusCode = HttpStatusCode.NotFound
+        //        };
+        //    }
 
-            _context.Reviews.Remove(review);
-            await _context.SaveChangesAsync();
+        //    _context.Reviews.Remove(review);
+        //    await _context.SaveChangesAsync();
 
-            return new ServiceResult
-            {
-                Message = "Review deleted successfully",
-                StatusCode = HttpStatusCode.OK,
-                Success = true
-            };
-        }
+        //    return new ServiceResult
+        //    {
+        //        Message = "Review deleted successfully",
+        //        StatusCode = HttpStatusCode.OK,
+        //        Success = true
+        //    };
+        //}
 
         public async Task<ServiceResult> ApproveReview(int reviewId)
         {

@@ -37,6 +37,14 @@ namespace CleverCode.Controllers
                 return NotFound(new ErrorResponse(HttpStatusCode.NotFound, "Complaint not found."));
             return Ok(new BaseResponse(HttpStatusCode.OK, item, "Complaint retrieved successfully."));
         }
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [HttpGet("pending")]
+        public async Task<IActionResult> GetPendingComplaints([FromQuery] string? lang = "en")
+        {
+            var data = await _service.GetPendingComplaintsAsync(lang);
+            return Ok(new BaseResponse(HttpStatusCode.OK, data, "Pending complaints retrieved successfully."));
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ComplaintDto dto, [FromQuery] string? lang = "en")
@@ -61,6 +69,16 @@ namespace CleverCode.Controllers
             if (!deleted)
                 return NotFound(new ErrorResponse(HttpStatusCode.NotFound, "Complaint not found."));
             return Ok(new BaseResponse(HttpStatusCode.OK, null, "Complaint deleted successfully."));
+        }
+
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [HttpPut("{id}/resolve")]
+        public async Task<IActionResult> Resolve(int id)
+        {
+            var resolved = await _service.ResolveAsync(id);
+            if (!resolved)
+                return NotFound(new ErrorResponse(HttpStatusCode.NotFound, "Complaint not found."));
+            return Ok(new BaseResponse(HttpStatusCode.OK, null, "Complaint status changed to resolved."));
         }
     }
 }

@@ -42,6 +42,9 @@ namespace CleverCode.Data.Configurations
                    .WithMany(s => s.Complaints)
                    .HasForeignKey(c => c.Service_ID)
                    .OnDelete(DeleteBehavior.SetNull);
+            builder.Property(c => c.Email)
+       .HasMaxLength(200);
+
         }
     }
 }

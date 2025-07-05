@@ -130,7 +130,7 @@ namespace CleverCode.Services
             };
             return new ServiceResult()
             {
-                Data = localizedService,
+                Data = LocalizeService(service),
                 Message = "Service retrieved successfully",
                 StatusCode = HttpStatusCode.OK,
                 Success = true

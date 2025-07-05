@@ -28,13 +28,23 @@ namespace CleverCode.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetReviewById(int id)
+        //public async Task<IActionResult> GetReviewById(int id)
+        //{
+        //    var result = await _reviewService.GetReviewByIdAsync(id);
+        //    if (!result.Success)
+        //        return NotFound(new ErrorResponse(result.StatusCode, result.Message));
+        //    return Ok(new BaseResponse(result.StatusCode, result.Data, result.Message));
+        //}
+        [HttpGet("approved")]
+        public async Task<IActionResult> GetApprovedReviews()
         {
-            var result = await _reviewService.GetReviewByIdAsync(id);
+            var result = await _reviewService.GetApprovedReviewsAsync();
             if (!result.Success)
-                return NotFound(new ErrorResponse(result.StatusCode, result.Message));
+                return BadRequest(new ErrorResponse(result.StatusCode, result.Message));
+
             return Ok(new BaseResponse(result.StatusCode, result.Data, result.Message));
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CreateReview([FromBody] ReviewDto reviewDto)
@@ -56,14 +66,14 @@ namespace CleverCode.Controllers
             return Ok(new BaseResponse(result.StatusCode, result.Data, result.Message));
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteReview(int id)
-        {
-            var result = await _reviewService.DeleteReviewAsync(id);
-            if (!result.Success)
-                return BadRequest(new ErrorResponse(result.StatusCode, result.Message));
-            return Ok(new BaseResponse(result.StatusCode, result.Data, result.Message));
-        }
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> DeleteReview(int id)
+        //{
+        //    var result = await _reviewService.DeleteReviewAsync(id);
+        //    if (!result.Success)
+        //        return BadRequest(new ErrorResponse(result.StatusCode, result.Message));
+        //    return Ok(new BaseResponse(result.StatusCode, result.Data, result.Message));
+        //}
 
         [HttpGet("ByService/{serviceId}")]
         public async Task<IActionResult> GetReviewsByServiceId(int serviceId)

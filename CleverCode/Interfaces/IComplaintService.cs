@@ -9,5 +9,8 @@ namespace CleverCode.Interfaces
         Task<ComplaintDto> CreateAsync(ComplaintDto dto, string? lang = "en");
         Task<bool> UpdateAsync(int id, ComplaintDto dto);
         Task<bool> DeleteAsync(int id);
+        Task<bool> ResolveAsync(int id); // ✅ تمت الإضافة
+        Task<IEnumerable<ComplaintDto>> GetPendingComplaintsAsync(string? lang = "en");
+
     }
 }

@@ -29,6 +29,7 @@ namespace CleverCode.Services
                 Priority_EN = lang == "en" ? dto.Priority : null,
                 Name_AR = lang == "ar" ? dto.Name : null,
                 Name_EN = lang == "en" ? dto.Name : null,
+                Email = dto.Email,
                 Date = dto.Date,
                 Service_ID = dto.Service_ID
             };
@@ -51,6 +52,7 @@ namespace CleverCode.Services
                     Status = lang == "ar" ? c.Status_AR : c.Status_EN,
                     Priority = lang == "ar" ? c.Priority_AR : c.Priority_EN,
                     Name = lang == "ar" ? c.Name_AR : c.Name_EN,
+                    Email = c.Email,
                     Date = c.Date,
                     Service_ID = c.Service_ID
                 })
@@ -70,10 +72,29 @@ namespace CleverCode.Services
                 Status = lang == "ar" ? c.Status_AR : c.Status_EN,
                 Priority = lang == "ar" ? c.Priority_AR : c.Priority_EN,
                 Name = lang == "ar" ? c.Name_AR : c.Name_EN,
+                Email = c.Email,
                 Date = c.Date,
                 Service_ID = c.Service_ID
             };
         }
+        public async Task<IEnumerable<ComplaintDto>> GetPendingComplaintsAsync(string? lang = "en")
+        {
+            return await _context.Complaints
+                .Where(c => (lang == "ar" ? c.Status_AR : c.Status_EN) == "Pending")
+                .Select(c => new ComplaintDto
+                {
+                    Complaint_ID = c.Complaint_ID,
+                    Type = lang == "ar" ? c.Type_AR : c.Type_EN,
+                    Description = lang == "ar" ? c.Description_AR : c.Description_EN,
+                    Status = lang == "ar" ? c.Status_AR : c.Status_EN,
+                    Priority = lang == "ar" ? c.Priority_AR : c.Priority_EN,
+                    Name = lang == "ar" ? c.Name_AR : c.Name_EN,
+                    Date = c.Date,
+                    Service_ID = c.Service_ID
+                })
+                .ToListAsync();
+        }
+
 
         public async Task<bool> UpdateAsync(int id, ComplaintDto dto)
         {
@@ -90,6 +111,7 @@ namespace CleverCode.Services
             complaint.Priority_EN = dto.Priority;
             complaint.Name_AR = dto.Name;
             complaint.Name_EN = dto.Name;
+            complaint.Email = dto.Email;
             complaint.Date = dto.Date;
             complaint.Service_ID = dto.Service_ID;
 
@@ -103,6 +125,17 @@ namespace CleverCode.Services
             if (complaint == null) return false;
 
             _context.Complaints.Remove(complaint);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> ResolveAsync(int id)
+        {
+            var complaint = await _context.Complaints.FindAsync(id);
+            if (complaint == null) return false;
+
+            complaint.Status_AR = "تم الحل";
+            complaint.Status_EN = "Resolved";
             await _context.SaveChangesAsync();
             return true;
         }
