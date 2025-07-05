@@ -1,8 +1,10 @@
 ﻿using CleverCode.DTO;
+using CleverCode.Helpers;
+using CleverCode.Helpers.Error_Response;
 using CleverCode.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace CleverCode.Controllers
 {
@@ -17,36 +19,57 @@ namespace CleverCode.Controllers
             _service = service;
         }
 
+        private string? GetLanguageFromHeader()
+        {
+            var langHeader = Request.Headers["Accept-Language"].ToString();
+            return string.IsNullOrEmpty(langHeader) ? "en" : langHeader.ToLower();
+        }
+
         [HttpGet]
-        public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _service.GetAllAsync();
+            return Ok(new BaseResponse(HttpStatusCode.OK, result, "FAQs retrieved successfully."));
+        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var item = await _service.GetByIdAsync(id);
-            if (item == null) return NotFound();
-            return Ok(item);
+            var result = await _service.GetByIdAsync(id);
+            if (result == null)
+                return NotFound(new ErrorResponse(HttpStatusCode.NotFound, $"FAQ with ID {id} not found."));
+
+            return Ok(new BaseResponse(HttpStatusCode.OK, result, "FAQ retrieved successfully."));
         }
+
         [HttpPost]
-        public async Task<IActionResult> Create(FAQDto dto)
+        public async Task<IActionResult> Create([FromBody] FAQDto dto)
         {
             var created = await _service.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.FAQ_ID }, created);
+            if (created == null)
+                return BadRequest(new ErrorResponse(HttpStatusCode.BadRequest, "Failed to create FAQ."));
+
+            return Ok(new BaseResponse(HttpStatusCode.Created, created, "FAQ created successfully."));
         }
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, FAQDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] FAQDto dto)
         {
             var updated = await _service.UpdateAsync(id, dto);
-            if (!updated) return NotFound();
-            return NoContent();
+            if (!updated)
+                return NotFound(new ErrorResponse(HttpStatusCode.NotFound, $"FAQ with ID {id} not found."));
+
+            return Ok(new BaseResponse(HttpStatusCode.OK, dto, "FAQ updated successfully."));
         }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _service.DeleteAsync(id);
-            if (!deleted) return NotFound();
-            return NoContent();
+            if (!deleted)
+                return NotFound(new ErrorResponse(HttpStatusCode.NotFound, $"FAQ with ID {id} not found."));
+
+            return Ok(new BaseResponse(HttpStatusCode.OK, null, "FAQ deleted successfully."));
         }
     }
 }
-

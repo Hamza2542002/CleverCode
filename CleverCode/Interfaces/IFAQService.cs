@@ -1,13 +1,9 @@
-﻿using CleverCode.DTO;
-
-namespace CleverCode.Interfaces
+﻿public interface IFAQService
 {
-    public interface IFAQService
-    {
-        Task<IEnumerable<FAQDto>> GetAllAsync();
-        Task<FAQDto?> GetByIdAsync(int id);
-        Task<FAQDto> CreateAsync(FAQDto dto);
-        Task<bool> UpdateAsync(int id, FAQDto dto);
-        Task<bool> DeleteAsync(int id);
-    }
+    Task<List<LocalizedFaqDto>> GetAllAsync();
+    Task<LocalizedFaqDto?> GetByIdAsync(int id);
+    Task<FAQDto> CreateAsync(FAQDto dto);
+    Task<bool> UpdateAsync(int id, FAQDto dto);
+    Task<bool> DeleteAsync(int id);
 }
+

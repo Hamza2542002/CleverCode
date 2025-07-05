@@ -1,13 +1,10 @@
 ﻿using CleverCode.DTO;
 
-namespace CleverCode.Interfaces
+public interface IMessageService
 {
-    public interface IMessageService
-    {
-        Task<IEnumerable<MessageDto>> GetAllAsync();
-        Task<MessageDto?> GetByIdAsync(int id);
-        Task<MessageDto> CreateAsync(MessageDto dto);
-        Task<bool> UpdateAsync(int id, MessageDto dto);
-        Task<bool> DeleteAsync(int id);
-    }
+    Task<IEnumerable<object>> GetAllAsync();
+    Task<object?> GetByIdAsync(int id);
+    Task<MessageDto> CreateAsync(MessageDto dto);
+    Task<bool> UpdateAsync(int id, MessageDto dto);
+    Task<bool> DeleteAsync(int id);
 }

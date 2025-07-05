@@ -27,7 +27,7 @@ namespace CleverCode.Controllers
         public async Task<ActionResult<IEnumerable<ProjectDto>>> GetAllProjects()
         {
             var result = await _projectService.GetAllProjectsAsync();
-            return Ok(new BaseResponse(HttpStatusCode.OK,result.Data,"Projects Fetched Successfulltu"));
+            return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Projects Fetched Successfulltu"));
         }
 
         [HttpGet("{id}")]
@@ -51,20 +51,21 @@ namespace CleverCode.Controllers
             }
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Projects Fetched Successfulltu"));
         }
-        [Authorize(Roles = "Admin" , AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
         [HttpPost]
-        public async Task<ActionResult<ProjectDto>> CreateProject([FromForm]ProjectDto projectDto)
+        public async Task<ActionResult<ProjectDto>> CreateProject([FromForm] ProjectDto projectDto)
         {
             var result = await _projectService.CreateProjectAsync(projectDto);
-            if(!result.Success)
+            if (!result.Success)
             {
                 return BadRequest(new ErrorResponse(HttpStatusCode.BadRequest, result.Message));
             }
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, result.Message));
         }
         [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
-        [HttpPost("service/{service_id}/{project_id}")]
+        [HttpPost("services/{service_id}/{project_id}")]
         public async Task<ActionResult<ProjectDto>> AddProjectToService(int service_id, int project_id)
+
         {
             var result = await _projectService.AddProjectToService(service_id, project_id);
             if (!result.Success)

@@ -7,23 +7,48 @@ using CleverCode.Models;
 using medical_app_db.Core.Interfaces;
 using Microsoft.Build.Evaluation;
 using Microsoft.CodeAnalysis;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+
 namespace CleverCode.Services
 {
-    public class ProjectService : IProjectService
+    public class ProjectServices : IProjectService
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IImageService _cloudinaryService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IImageService _imageService;
 
-
-        public ProjectService(ApplicationDbContext context, IMapper mapper, IImageService imageService)
+        public ProjectServices(ApplicationDbContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor, IImageService imageService)
         {
             _context = context;
             _mapper = mapper;
-            _cloudinaryService = imageService;
+            _httpContextAccessor = httpContextAccessor;
+            _imageService = imageService;
         }
+
+        private string GetLanguage()
+        {
+            var lang = _httpContextAccessor.HttpContext?.Request?.Headers["Accept-Language"].ToString().ToLower();
+            return lang == "ar" ? "ar" : "en";
+        }
+
+        private LocalizedProjectDto LocalizeProject(Project p)
+        {
+            var lang = GetLanguage();
+            return new LocalizedProjectDto
+            {
+                Project_ID = p.Project_ID,
+                Title = lang == "ar" ? p.TitleAr : p.TitleEn,
+                Description = lang == "ar" ? p.DescriptionAr : p.DescriptionEn,
+                Rate = p.Rate,
+                Tech = p.Tech,
+                ProjectLink = p.ProjectLink,
+                ImageUrl = p.ImageUrl
+            };
+        }
+
         public async Task<ServiceResult> GetAllProjectsAsync()
         {
             var projects = await _context.Projects
@@ -36,61 +61,94 @@ namespace CleverCode.Services
                 item.Service_ID = projectServices.Select(ps => ps.Service_ID).FirstOrDefault();
             }
             return new ServiceResult ()
+            var projects = await _context.Projects.ToListAsync();
+            var localized = projects.Select(p => LocalizeProject(p)).ToList();
+
+            return new ServiceResult
             {
                 Data = dto,
+                Data = localized,
                 Message = "Projects retrieved successfully",
                 StatusCode = HttpStatusCode.OK,
                 Success = true
             };
         }
+
+        public async Task<ServiceResult> GetProjectByIdAsync(int id)
+        {
+            var project = await _context.Projects.FindAsync(id);
+            if (project == null)
+            {
+                return new ServiceResult
+                {
+                    Message = "Project not found",
+                    StatusCode = HttpStatusCode.NotFound
+                };
+            }
+
+            return new ServiceResult
+            {
+                Data = LocalizeProject(project),
+                Message = "Project retrieved successfully",
+                StatusCode = HttpStatusCode.OK,
+                Success = true
+            };
+        }
+
         public async Task<ServiceResult> GetSerivceProjects(int serviceId)
         {
-            var service = await _context.Services
-                .FirstOrDefaultAsync(s => s.Service_ID == serviceId);
-            if(service == null)
+            var service = await _context.Services.FindAsync(serviceId);
+            if (service == null)
             {
-                return new ServiceResult()
+                return new ServiceResult
                 {
-                    Data = null,
                     Message = "Service not found",
                     StatusCode = HttpStatusCode.BadRequest
                 };
             }
-            var projectServices =  await _context.ProjectServices
-                .Include(p => p.Project)
+
+            var projects = await _context.ProjectServices
+                .Include(ps => ps.Project)
                 .Where(ps => ps.Service_ID == serviceId)
                 .Select(ps => ps.Project)
                 .ToListAsync();
-            return new ServiceResult()
+
+            var localized = projects.Select(p => LocalizeProject(p)).ToList();
+
+            return new ServiceResult
             {
-                Data = _mapper.Map<List<ProjectDto>>(projectServices),
+                Data = localized,
                 Message = "Projects retrieved successfully",
                 StatusCode = HttpStatusCode.OK,
                 Success = true
             };
         }
+
         public async Task<ServiceResult> AddProjectToService(int serviceId, int projectId)
         {
-            var service = await _context.Services
-                .FirstOrDefaultAsync(s => s.Service_ID == serviceId);
-            if(service == null)
+            var service = await _context.Services.FindAsync(serviceId);
+            var project = await _context.Projects.FindAsync(projectId);
+
+            if (service == null || project == null)
             {
-                return new ServiceResult()
+                return new ServiceResult
                 {
-                    Data = null,
-                    Message = "Service not found",
-                    StatusCode = HttpStatusCode.BadRequest
+                    Message = "Service or Project not found",
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Success = false
                 };
             }
-            var project = await _context.Projects
-                .FirstOrDefaultAsync(p => p.Project_ID == projectId);
-            if(project == null)
+
+            var existingRelation = await _context.ProjectServices
+                .FirstOrDefaultAsync(ps => ps.Service_ID == serviceId && ps.Project_ID == projectId);
+
+            if (existingRelation != null)
             {
-                return new ServiceResult()
+                return new ServiceResult
                 {
-                    Data = null,
-                    Message = "Project not found",
-                    StatusCode = HttpStatusCode.BadRequest
+                    Message = "Relation already exists",
+                    StatusCode = HttpStatusCode.Conflict,
+                    Success = false
                 };
             }
             var existingProjectService = await _context.ProjectServices
@@ -105,25 +163,40 @@ namespace CleverCode.Services
                 };
             }
             var projectService = new Models.ProjectService()
+
+            var relation = new ProjectService { Service_ID = serviceId, Project_ID = projectId };
+            await _context.ProjectServices.AddAsync(relation);
+            await _context.SaveChangesAsync();
+
+            return new ServiceResult
             {
-                Project_ID = projectId,
-                Service_ID = serviceId
+                Data = LocalizeProject(project),
+                Message = "Project added to service",
+                StatusCode = HttpStatusCode.OK,
+                Success = true
             };
-            await _context.ProjectServices.AddAsync(projectService);
-            var result = await _context.SaveChangesAsync();
-            if(result < 0)
+        }
+
+        public async Task<ServiceResult> DeleteProjectFromService(int serviceId, int projectId)
+        {
+            var relation = await _context.ProjectServices
+                .FirstOrDefaultAsync(ps => ps.Service_ID == serviceId && ps.Project_ID == projectId);
+
+            if (relation == null)
             {
-                return new ServiceResult()
+                return new ServiceResult
                 {
-                    Data = null,
-                    Message = "Couldn't add project to service",
-                    StatusCode = HttpStatusCode.BadRequest
+                    Message = "Relation not found",
+                    StatusCode = HttpStatusCode.NotFound
                 };
             }
-            return new ServiceResult()
+
+            _context.ProjectServices.Remove(relation);
+            await _context.SaveChangesAsync();
+
+            return new ServiceResult
             {
-                Data = _mapper.Map<ProjectDto>(project),
-                Message = "Project added to service successfully",
+                Message = "Project removed from service",
                 StatusCode = HttpStatusCode.OK,
                 Success = true
             };
@@ -149,7 +222,30 @@ namespace CleverCode.Services
                 StatusCode = project != null ? HttpStatusCode.OK : HttpStatusCode.NotFound,
                 Success = project != null
             };
+
+        public async Task<ServiceResult> DeleteProjectAsync(int id)
+        {
+            var project = await _context.Projects.FindAsync(id);
+            if (project == null)
+            {
+                return new ServiceResult
+                {
+                    Message = "Project not found",
+                    StatusCode = HttpStatusCode.NotFound
+                };
+            }
+
+            _context.Projects.Remove(project);
+            await _context.SaveChangesAsync();
+
+            return new ServiceResult
+            {
+                Message = "Project deleted",
+                StatusCode = HttpStatusCode.OK,
+                Success = true
+            };
         }
+
         public async Task<ServiceResult> CreateProjectAsync(ProjectDto projectDto)
         {
             var projectEntity = _mapper.Map<Models.Project>(projectDto);
@@ -169,6 +265,20 @@ namespace CleverCode.Services
                 .FirstOrDefaultAsync(s => s.Service_ID == projectDto.Service_ID);
             if (service == null)
                 return new ServiceResult()
+            var project = _mapper.Map<Project>(projectDto);
+
+            // حفظ الصورة إذا وجدت
+            if (projectDto.Image != null)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(projectDto.Image.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     Data = null,
                     Message = "Service not found",
@@ -186,25 +296,32 @@ namespace CleverCode.Services
                 };
             }
             var projectService = new Models.ProjectService()
+                    await projectDto.Image.CopyToAsync(stream);
+                }
+
+                project.ImageUrl = "/uploads/" + fileName;
+            }
+
+            await _context.Projects.AddAsync(project);
+            await _context.SaveChangesAsync();
+
+            // ربط المشروع بالخدمة إذا تم تحديد Service_ID
+            if (projectDto.Service_ID != 0)
             {
-                Project_ID = entity.Entity.Project_ID,
-                Service_ID = service.Service_ID
-            };
-            await _context.ProjectServices.AddAsync(projectService);
-            var result = await _context.SaveChangesAsync();
-            if(result < 0)
-                return new ServiceResult()
+                var relation = new ProjectService
                 {
-                    Data = null,
-                    Message = "Couldn't create project",
-                    StatusCode = HttpStatusCode.BadRequest
+                    Project_ID = project.Project_ID,
+                    Service_ID = projectDto.Service_ID
                 };
-            var projectToreturnDto = _mapper.Map<ProjectDto>(entity.Entity);
-            projectToreturnDto.Service_ID = service.Service_ID;
-            return new ServiceResult()
+
+                await _context.ProjectServices.AddAsync(relation);
+                await _context.SaveChangesAsync();
+            }
+
+            return new ServiceResult
             {
-                Data = projectToreturnDto,
-                Message = "Project created successfully",
+                Data = LocalizeProject(project),
+                Message = "Project created",
                 StatusCode = HttpStatusCode.Created,
                 Success = true
             };
@@ -214,10 +331,11 @@ namespace CleverCode.Services
             var project = await _context.Projects
                 .Include(p => p.ProjectServices)
                 .FirstOrDefaultAsync(p => p.Project_ID == id);
+
             if (project == null)
-                return new ServiceResult()
+            {
+                return new ServiceResult
                 {
-                    Data = null,
                     Message = "Project not found",
                     StatusCode = HttpStatusCode.NotFound
                 };
@@ -233,9 +351,14 @@ namespace CleverCode.Services
                 }
             }
 
+            }
+
+            // تحديث الحقول الأساسية
+            project.TitleAr = projectDto.TitleAr;
+            project.TitleEn = projectDto.TitleEn;
+            project.DescriptionAr = projectDto.DescriptionAr;
+            project.DescriptionEn = projectDto.DescriptionEn;
             project.Rate = projectDto.Rate;
-            project.Title = projectDto.Title;
-            project.Description = projectDto.Description;
             project.Tech = projectDto.Tech;
             project.ProjectLink = projectDto.ProjectLink;
 
@@ -310,60 +433,61 @@ namespace CleverCode.Services
                 Success = true
             };
         }
+            project.ProjectLink = projectDto.ProjectLink;
 
-        public async Task<ServiceResult> DeleteProjectFromService(int service_id, int project_id)
-        {
-            var service = await _context.Services
-                .FirstOrDefaultAsync(s => s.Service_ID == service_id);
-            if (service == null)
+            // حفظ الصورة الجديدة (لو موجودة)
+            if (projectDto.Image != null)
             {
-                return new ServiceResult()
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(projectDto.Image.FileName);
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    Data = null,
-                    Message = "Service not found",
-                    StatusCode = HttpStatusCode.BadRequest
-                };
+                    await projectDto.Image.CopyToAsync(stream);
+                }
+
+                project.ImageUrl = "/uploads/" + fileName;
             }
-            var project = await _context.Projects
-                .FirstOrDefaultAsync(p => p.Project_ID == project_id);
-            if (project == null)
+
+            // تحديث العلاقة بالخدمة (لو تغيرت)
+            if (projectDto.Service_ID != 0)
             {
-                return new ServiceResult()
+                var existingRelation = project.ProjectServices.FirstOrDefault();
+                if (existingRelation == null)
                 {
-                    Data = null,
-                    Message = "Project not found",
-                    StatusCode = HttpStatusCode.BadRequest
-                };
+                    // لا توجد علاقة، فأنشئ واحدة
+                    var newRelation = new ProjectService
+                    {
+                        Project_ID = project.Project_ID,
+                        Service_ID = projectDto.Service_ID
+                    };
+                    await _context.ProjectServices.AddAsync(newRelation);
+                }
+                else if (existingRelation.Service_ID != projectDto.Service_ID)
+                {
+                    // إذا الخدمة تغيرت، حدثها
+                    existingRelation.Service_ID = projectDto.Service_ID;
+                    _context.ProjectServices.Update(existingRelation);
+                }
             }
-            var projectService = await _context.ProjectServices
-                .FirstOrDefaultAsync(ps => ps.Service_ID == service_id && ps.Project_ID == project_id);
-            if (projectService == null)
-                {
-                return new ServiceResult()
-                {
-                    Data = null,
-                    Message = "Project not found in service",
-                    StatusCode = HttpStatusCode.BadRequest
-                };
-            }
-            _context.ProjectServices.Remove(projectService);
-            var result = await _context.SaveChangesAsync();
-            if (result < 0)
+
+            _context.Projects.Update(project);
+            await _context.SaveChangesAsync();
+
+            // إرجاع نسخة مخصصة
+            return new ServiceResult
             {
-                return new ServiceResult()
-                {
-                    Data = null,
-                    Message = "Couldn't delete project from service",
-                    StatusCode = HttpStatusCode.BadRequest
-                };
-            }
-            return new ServiceResult()
-            {
-                Data = _mapper.Map<ProjectDto>(project),
-                Message = "Project deleted from service successfully",
+                Data = LocalizeProject(project),
+                Message = "Project updated",
                 StatusCode = HttpStatusCode.OK,
                 Success = true
             };
         }
+
     }
 }

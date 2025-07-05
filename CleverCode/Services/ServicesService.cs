@@ -4,8 +4,10 @@ using CleverCode.DTO;
 using CleverCode.Helpers;
 using CleverCode.Interfaces;
 using CleverCode.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -15,12 +17,43 @@ namespace CleverCode.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ServicesService(ApplicationDbContext context, IMapper mapper)
+        public ServicesService(ApplicationDbContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
+
+        private string GetLanguage()
+        {
+            var lang = _httpContextAccessor.HttpContext?.Request?.Headers["Accept-Language"].ToString().ToLower();
+            return lang == "ar" ? "ar" : "en";
+        }
+
+        private LocalizedServiceDto LocalizeService(Service s)
+        {
+            var lang = GetLanguage();
+
+            return new LocalizedServiceDto
+            {
+                Service_ID = s.Service_ID,
+                Title = lang == "ar" ? (s.TitleAr ?? s.Title ?? string.Empty) : (s.Title ?? s.TitleAr ?? string.Empty),
+                Icon = s.Icon ?? string.Empty,
+                Description = lang == "ar" ? (s.DescriptionAr ?? s.Description ?? string.Empty) : (s.Description ?? s.DescriptionAr ?? string.Empty),
+                Pricing = s.Pricing,
+                Feature = s.Feature ?? string.Empty,
+                Category = s.Category ?? string.Empty,
+                TimeLine = s.TimeLine ?? string.Empty,
+
+                Projects = _mapper.Map<List<ProjectDto>>(s.ProjectServices?.Select(ps => ps.Project).ToList() ?? new List<Project>()),
+                Reviews = _mapper.Map<List<ReviewDto>>(s.Reviews ?? new List<Review>()),
+                Complaints = _mapper.Map<List<ComplaintDto>>(s.Complaints ?? new List<Complaint>()),
+                Messages = _mapper.Map<List<MessageDto>>(s.Messages ?? new List<Message>())
+            };
+        }
+
 
         public async Task<ServiceResult> GetAllServicesAsync()
         {
@@ -31,22 +64,12 @@ namespace CleverCode.Services
                 .Include(s => s.Complaints)
                 .Include(s => s.Messages)
                 .ToListAsync();
-            var serviceDtos = _mapper.Map<List<ServiceDto>>(services);
-            foreach (var item in services)
-            {
-                var serviceDto = serviceDtos.FirstOrDefault(s => s.Service_ID == item.Service_ID);
-                serviceDto.Projects = _mapper.Map<List<ProjectDto>>(item.ProjectServices.Select(ps => ps.Project).ToList());
-                foreach (var project in serviceDto.Projects)
-                {
-                    project.Service_ID = item.Service_ID;
-                }
-            }
-            var projects = await _context.ProjectServices
-                .Select(s => s.Project)
-                .ToListAsync();
+
+            var localizedServices = services.Select(s => LocalizeService(s)).ToList();
+
             return new ServiceResult()
             {
-                Data = serviceDtos,
+                Data = localizedServices,
                 Message = "Services retrieved successfully",
                 StatusCode = HttpStatusCode.OK,
                 Success = true
@@ -56,12 +79,19 @@ namespace CleverCode.Services
         public async Task<ServiceResult> GetServiceByIdAsync(int id)
         {
             var service = await _context.Services
+                .Include(s => s.ProjectServices)
+                .ThenInclude(ps => ps.Project)
+                .Include(s => s.Reviews)
+                .Include(s => s.Complaints)
+                .Include(s => s.Messages)
                 .FirstOrDefaultAsync(s => s.Service_ID == id);
+
             if (service == null)
                 return new ServiceResult()
                 {
                     Message = "Service not found",
-                    StatusCode = HttpStatusCode.NotFound
+                    StatusCode = HttpStatusCode.NotFound,
+                    Success = false
                 };
             var projects = await _context.ProjectServices
                 .Where(ps => ps.Service_ID == service.Service_ID)
@@ -100,10 +130,10 @@ namespace CleverCode.Services
             };
             return new ServiceResult()
             {
-                Data = serviceDto,
-                Message = service != null ? "Service retrieved successfully" : "Service not found",
-                StatusCode = service != null ? HttpStatusCode.OK : HttpStatusCode.NotFound,
-                Success = service != null
+                Data = localizedService,
+                Message = "Service retrieved successfully",
+                StatusCode = HttpStatusCode.OK,
+                Success = true
             };
         }
 
@@ -112,7 +142,8 @@ namespace CleverCode.Services
             var serviceEntity = _mapper.Map<Service>(serviceDto);
             var entity = await _context.Services.AddAsync(serviceEntity);
             var result = await _context.SaveChangesAsync();
-            if (result < 0)
+
+            if (result < 1)
             {
                 return new ServiceResult()
                 {
@@ -121,6 +152,7 @@ namespace CleverCode.Services
                     Success = false
                 };
             }
+
             return new ServiceResult()
             {
                 Data = _mapper.Map<ServiceDto>(entity.Entity),
@@ -133,25 +165,19 @@ namespace CleverCode.Services
         public async Task<ServiceResult> UpdateServiceAsync(int id, ServiceDto serviceDto)
         {
             var service = await _context.Services.FirstOrDefaultAsync(s => s.Service_ID == id);
-            if (service is null)
+            if (service == null)
             {
                 return new ServiceResult()
                 {
                     Message = "Service not found",
-                    StatusCode = HttpStatusCode.NotFound
+                    StatusCode = HttpStatusCode.NotFound,
+                    Success = false
                 };
             }
-            service.Category = serviceDto.Category;
-            service.Description = serviceDto.Description;
-            service.Feature = serviceDto.Feature;
-            service.Icon = serviceDto.Icon;
-            service.Pricing = serviceDto.Pricing;
-            service.TimeLine = serviceDto.TimeLine;
-            service.Title = serviceDto.Title;
-
             _context.Services.Update(service);
             var result = await _context.SaveChangesAsync();
-            if (result < 0)
+
+            if (result < 1)
             {
                 return new ServiceResult()
                 {
@@ -160,6 +186,7 @@ namespace CleverCode.Services
                     Success = false
                 };
             }
+
             return new ServiceResult()
             {
                 Data = _mapper.Map<ServiceDto>(service),
@@ -172,7 +199,7 @@ namespace CleverCode.Services
         public async Task<ServiceResult> DeleteServiceAsync(int id)
         {
             var service = await _context.Services.FirstOrDefaultAsync(s => s.Service_ID == id);
-            if (service is null)
+            if (service == null)
             {
                 return new ServiceResult()
                 {
@@ -184,7 +211,8 @@ namespace CleverCode.Services
 
             _context.Services.Remove(service);
             var result = await _context.SaveChangesAsync();
-            if (result < 0)
+
+            if (result < 1)
             {
                 return new ServiceResult()
                 {
@@ -193,6 +221,7 @@ namespace CleverCode.Services
                     Success = false
                 };
             }
+
             return new ServiceResult()
             {
                 Message = "Service deleted successfully",
