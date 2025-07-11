@@ -20,7 +20,7 @@ namespace CleverCode.Controllers
             _service = service;
         }
 
-        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "Admin,super-Admin", AuthenticationSchemes = "Bearer")]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] string? lang = "en")
         {
@@ -28,7 +28,7 @@ namespace CleverCode.Controllers
             return Ok(new BaseResponse(HttpStatusCode.OK, data, "Complaints retrieved successfully."));
         }
 
-        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "Admin,super-Admin", AuthenticationSchemes = "Bearer")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id, [FromQuery] string? lang = "en")
         {
@@ -37,7 +37,7 @@ namespace CleverCode.Controllers
                 return NotFound(new ErrorResponse(HttpStatusCode.NotFound, "Complaint not found."));
             return Ok(new BaseResponse(HttpStatusCode.OK, item, "Complaint retrieved successfully."));
         }
-        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "Admin,super-Admin", AuthenticationSchemes = "Bearer")]
         [HttpGet("pending")]
         public async Task<IActionResult> GetPendingComplaints([FromQuery] string? lang = "en")
         {
@@ -71,7 +71,7 @@ namespace CleverCode.Controllers
             return Ok(new BaseResponse(HttpStatusCode.OK, null, "Complaint deleted successfully."));
         }
 
-        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "Admin,super-Admin", AuthenticationSchemes = "Bearer")]
         [HttpPut("{id}/resolve")]
         public async Task<IActionResult> Resolve(int id)
         {

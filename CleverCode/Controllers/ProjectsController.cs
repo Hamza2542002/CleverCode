@@ -51,7 +51,7 @@ namespace CleverCode.Controllers
             }
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Projects Fetched Successfulltu"));
         }
-        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "Admin,super-Admin", AuthenticationSchemes = "Bearer")]
         [HttpPost]
         public async Task<ActionResult<ProjectDto>> CreateProject([FromForm] ProjectDto projectDto)
         {
@@ -62,7 +62,7 @@ namespace CleverCode.Controllers
             }
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, result.Message));
         }
-        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "Admin,super-Admin", AuthenticationSchemes = "Bearer")]
         [HttpPost("services/{service_id}/{project_id}")]
         public async Task<ActionResult<ProjectDto>> AddProjectToService(int service_id, int project_id)
 
@@ -74,7 +74,7 @@ namespace CleverCode.Controllers
             }
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Project added to service successfully."));
         }
-        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "Admin,super-Admin", AuthenticationSchemes = "Bearer")]
         [HttpPut("{id}")]
         public async Task<ActionResult<ProjectDto>> UpdateProject(int id, ProjectDto projectDto)
         {
@@ -92,14 +92,14 @@ namespace CleverCode.Controllers
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Projects Updated Successfulltu"));
         }
 
-        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "Admin,super-Admin", AuthenticationSchemes = "Bearer")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProject(int id)
         {
             var result = await _projectService.DeleteProjectAsync(id);
             return Ok(new BaseResponse(HttpStatusCode.OK, result.Data, "Projects Deleted Successfulltu"));
         }
-        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles =  "Admin,super-Admin", AuthenticationSchemes = "Bearer")]
         [HttpDelete("service/{service_id}/{project_id}")]
         public async Task<ActionResult<ProjectDto>> DeleteProjectFromService(int service_id, int project_id)
         {

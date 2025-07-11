@@ -65,6 +65,11 @@ namespace CleverCode.Services
                 .Include(s => s.Messages)
                 .ToListAsync();
 
+            services.ForEach(s =>
+            {
+                s.Reviews = s.Reviews.Where(r => r.IsApproved).ToList() ?? new List<Review>();
+            });
+
             var localizedServices = services.Select(s => LocalizeService(s)).ToList();
 
             return new ServiceResult()
@@ -98,7 +103,7 @@ namespace CleverCode.Services
                 .Select(ps => ps.Project)
                 .ToListAsync();
             var reviews = await _context.Reviews
-                .Where(r => r.Service_ID == service.Service_ID)
+                .Where(r => r.Service_ID == service.Service_ID && r.IsApproved)
                 .ToListAsync();
             var complaints = await _context.Complaints
                 .Where(c => c.Service_ID == service.Service_ID)

@@ -1,4 +1,5 @@
-﻿using CleverCode.Interfaces;
+﻿using CleverCode.DTO;
+using CleverCode.Interfaces;
 using CleverCode.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,7 +50,7 @@ namespace CleverCode.Controllers
         }
         [Authorize(Roles = "super-Admin", AuthenticationSchemes = "Bearer")]
         [HttpPut("update-admin/{id}")]
-        public async Task<IActionResult> UpdateAdmin(string id, [FromBody] RegisterModel model)
+        public async Task<IActionResult> UpdateAdmin(string id, [FromBody] UpdateAdminDto model)
         {
             var result = await _authServices.UpdateAdminAsync(id, model);
             if (!result.IsAuthenticated)

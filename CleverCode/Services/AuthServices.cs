@@ -191,7 +191,7 @@ public class AuthServices : IAuthServices
         };
     }
 
-    public async Task<AuthModels> UpdateAdminAsync(string id, RegisterModel model)
+    public async Task<AuthModels> UpdateAdminAsync(string id, UpdateAdminDto model)
     {
         var user = await _userManager.FindByIdAsync(id);
         if (user == null)
@@ -202,14 +202,15 @@ public class AuthServices : IAuthServices
                 IsAuthenticated = false
             };
         }
-        user.UserName = model.Username;
-        user.Email = model.Email;
-        user.PhoneNumber = model.PhoneNumber;
-
-        var updateToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-        var result = await _userManager.ResetPasswordAsync(user, updateToken, model.Password);
-
-        await _userManager.UpdateAsync(user);
+        user.UserName = string.IsNullOrEmpty(model.Username) ? user.UserName : model.Username ;
+        user.Email = string.IsNullOrEmpty(model.Email) ? user.Email : model.Email;
+        user.PhoneNumber = string.IsNullOrEmpty(model.PhoneNumber) ? user.PhoneNumber : model.PhoneNumber;
+        if(string.IsNullOrEmpty(model.Password))
+        {
+            var updateToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            await _userManager.ResetPasswordAsync(user, updateToken, model.Password);
+        }
+        var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded)
         {
             var errors = string.Join(", ", result.Errors.Select(e => e.Description));

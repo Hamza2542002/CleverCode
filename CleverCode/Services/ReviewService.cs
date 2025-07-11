@@ -129,7 +129,7 @@ namespace CleverCode.Services
         public async Task<ServiceResult> CreateReviewAsync(ReviewDto reviewDto)
         {
             var reviewEntity = _mapper.Map<Review>(reviewDto);
-            await _context.Reviews.AddAsync(reviewEntity);
+            var entity = await _context.Reviews.AddAsync(reviewEntity);
             var result = await _context.SaveChangesAsync();
 
             if (result <= 0)
@@ -143,7 +143,7 @@ namespace CleverCode.Services
 
             return new ServiceResult
             {
-                Data = LocalizeReview(reviewEntity),
+                Data = LocalizeReview(entity.Entity),
                 Message = "Review created successfully",
                 StatusCode = HttpStatusCode.Created,
                 Success = true

@@ -39,7 +39,7 @@ namespace CleverCode.Controllers
             return Ok(new BaseResponse(HttpStatusCode.OK, item, "Company retrieved successfully."));
         }
 
-        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "Admin,super-Admin", AuthenticationSchemes = "Bearer")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CompanyInformationDto dto)
         {
@@ -50,7 +50,7 @@ namespace CleverCode.Controllers
             return Ok(new BaseResponse(HttpStatusCode.Created, created, "Company created successfully."));
         }
 
-        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "Admin,super-Admin", AuthenticationSchemes = "Bearer")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] CompanyInformationDto dto)
         {
@@ -63,7 +63,7 @@ namespace CleverCode.Controllers
             return Ok(new BaseResponse(HttpStatusCode.OK, null, "Company updated successfully."));
         }
 
-        [Authorize(Roles = "Admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "Admin,super-Admin", AuthenticationSchemes = "Bearer")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

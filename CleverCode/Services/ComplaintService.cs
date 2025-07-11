@@ -47,11 +47,11 @@ namespace CleverCode.Services
                 .Select(c => new ComplaintDto
                 {
                     Complaint_ID = c.Complaint_ID,
-                    Type = lang == "ar" ? c.Type_AR : c.Type_EN,
-                    Description = lang == "ar" ? c.Description_AR : c.Description_EN,
-                    Status = lang == "ar" ? c.Status_AR : c.Status_EN,
-                    Priority = lang == "ar" ? c.Priority_AR : c.Priority_EN,
-                    Name = lang == "ar" ? c.Name_AR : c.Name_EN,
+                    Type = lang == "ar" ? c.Type_AR ?? c.Type_EN : c.Type_EN,
+                    Description = lang == "ar" ? c.Description_AR ?? c.Description_EN : c.Description_EN,
+                    Status = lang == "ar" ? c.Status_AR ?? c.Status_EN : c.Status_EN,
+                    Priority = lang == "ar" ? c.Priority_AR ?? c.Status_EN : c.Priority_EN,
+                    Name = lang == "ar" ? c.Name_AR ?? c.Status_EN : c.Name_EN,
                     Email = c.Email,
                     Date = c.Date,
                     Service_ID = c.Service_ID
@@ -67,11 +67,11 @@ namespace CleverCode.Services
             return new ComplaintDto
             {
                 Complaint_ID = c.Complaint_ID,
-                Type = lang == "ar" ? c.Type_AR : c.Type_EN,
-                Description = lang == "ar" ? c.Description_AR : c.Description_EN,
-                Status = lang == "ar" ? c.Status_AR : c.Status_EN,
-                Priority = lang == "ar" ? c.Priority_AR : c.Priority_EN,
-                Name = lang == "ar" ? c.Name_AR : c.Name_EN,
+                Type = lang == "ar" ? c.Type_AR ?? c.Type_EN : c.Type_EN,
+                Description = lang == "ar" ? c.Description_AR ?? c.Description_EN : c.Description_EN,
+                Status = lang == "ar" ? c.Status_AR ?? c.Status_EN : c.Status_EN,
+                Priority = lang == "ar" ? c.Priority_AR ?? c.Status_EN : c.Priority_EN,
+                Name = lang == "ar" ? c.Name_AR ?? c.Status_EN : c.Name_EN,
                 Email = c.Email,
                 Date = c.Date,
                 Service_ID = c.Service_ID
@@ -84,11 +84,11 @@ namespace CleverCode.Services
                 .Select(c => new ComplaintDto
                 {
                     Complaint_ID = c.Complaint_ID,
-                    Type = lang == "ar" ? c.Type_AR : c.Type_EN,
-                    Description = lang == "ar" ? c.Description_AR : c.Description_EN,
-                    Status = lang == "ar" ? c.Status_AR : c.Status_EN,
-                    Priority = lang == "ar" ? c.Priority_AR : c.Priority_EN,
-                    Name = lang == "ar" ? c.Name_AR : c.Name_EN,
+                    Type = lang == "ar" ? c.Type_AR ?? c.Status_EN : c.Type_EN,
+                    Description = lang == "ar" ? c.Description_AR ?? c.Status_EN : c.Description_EN,
+                    Status = lang == "ar" ? c.Status_AR ?? c.Status_EN : c.Status_EN,
+                    Priority = lang == "ar" ? c.Priority_AR ?? c.Status_EN : c.Priority_EN,
+                    Name = lang == "ar" ? c.Name_AR ?? c.Status_EN : c.Name_EN,
                     Date = c.Date,
                     Service_ID = c.Service_ID
                 })
