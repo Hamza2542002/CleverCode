@@ -19,6 +19,7 @@ namespace CleverCode.Helpers
             CreateMap<Service,ServiceDto>().ReverseMap();
             
             CreateMap<Complaint,ComplaintDto>().ReverseMap();
+
             CreateMap<Review, ReviewDto>();
             CreateMap<ReviewDto, Review>();
             CreateMap<Message,MessageDto>().ReverseMap();

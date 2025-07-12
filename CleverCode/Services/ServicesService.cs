@@ -18,12 +18,14 @@ namespace CleverCode.Services
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IComplaintService _complaintService;   
 
-        public ServicesService(ApplicationDbContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public ServicesService(ApplicationDbContext context, IMapper mapper,IComplaintService complaint ,IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _complaintService = complaint;
         }
 
         private string GetLanguage()
@@ -32,7 +34,7 @@ namespace CleverCode.Services
             return lang == "ar" ? "ar" : "en";
         }
 
-        private LocalizedServiceDto LocalizeService(Service s)
+        private async Task<LocalizedServiceDto> LocalizeService(Service s)
         {
             var lang = GetLanguage();
 
@@ -49,7 +51,7 @@ namespace CleverCode.Services
 
                 Projects = _mapper.Map<List<ProjectDto>>(s.ProjectServices?.Select(ps => ps.Project).ToList() ?? new List<Project>()),
                 Reviews = _mapper.Map<List<ReviewDto>>(s.Reviews ?? new List<Review>()),
-                Complaints = _mapper.Map<List<ComplaintDto>>(s.Complaints ?? new List<Complaint>()),
+                Complaints = _complaintService.GetAllAsync().Result.Where(c => c.Service_ID == s.Service_ID).ToList(),
                 Messages = _mapper.Map<List<MessageDto>>(s.Messages ?? new List<Message>())
             };
         }
@@ -65,7 +67,7 @@ namespace CleverCode.Services
                 .Include(s => s.Messages)
                 .ToListAsync();
 
-            services.ForEach(s =>
+            services.ForEach(async s =>
             {
                 s.Reviews = s.Reviews.Where(r => r.IsApproved).ToList() ?? new List<Review>();
             });
@@ -105,9 +107,9 @@ namespace CleverCode.Services
             var reviews = await _context.Reviews
                 .Where(r => r.Service_ID == service.Service_ID && r.IsApproved)
                 .ToListAsync();
-            var complaints = await _context.Complaints
-                .Where(c => c.Service_ID == service.Service_ID)
-                .ToListAsync();
+            var complaints = _complaintService.GetAllAsync()
+                .Result.Where(c => c.Service_ID == service.Service_ID)
+                .ToList();
             var messages = await _context.Messages
                 .Where(m => m.Service_ID == service.Service_ID)
                 .ToListAsync();
