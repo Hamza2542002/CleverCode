@@ -8,9 +8,10 @@ public class ServiceDto
     public string? Icon { get; set; }
     public string? Description { get; set; }
     public string? DescriptionAr { get; set; }  // جديد
-    public decimal Pricing { get; set; }
+    public string? Pricing { get; set; }
     public string? Feature { get; set; }
     public string? Category { get; set; }
+    public string? CategoryAr { get; set; }
     public string? TimeLine { get; set; }
 
     public ICollection<ProjectDto>? Projects { get; set; }

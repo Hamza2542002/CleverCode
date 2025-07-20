@@ -24,8 +24,6 @@ namespace CleverCode.Data.Configurations
                 builder.Property(s => s.Description)
                     .HasMaxLength(500);
 
-                builder.Property(s => s.Pricing)
-                    .HasColumnType("decimal(18,2)");
 
                 builder.Property(s => s.Feature)
                     .HasMaxLength(200);

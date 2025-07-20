@@ -72,11 +72,16 @@ namespace CleverCode.Services
                 s.Reviews = s.Reviews.Where(r => r.IsApproved).ToList() ?? new List<Review>();
             });
 
-            var localizedServices = services.Select(s => LocalizeService(s)).ToList();
+            var servicesDto = _mapper.Map<List<ServiceDto>>(services);
+            servicesDto.ForEach(async s =>
+            {
+                var service = services.Where(serv => serv.Service_ID == s.Service_ID).FirstOrDefault();
+                s.Projects = _mapper.Map<List<ProjectDto>>(service.ProjectServices.Select(ps => ps.Project));
+            });
 
             return new ServiceResult()
             {
-                Data = localizedServices,
+                Data = servicesDto,
                 Message = "Services retrieved successfully",
                 StatusCode = HttpStatusCode.OK,
                 Success = true
@@ -130,6 +135,9 @@ namespace CleverCode.Services
                 Feature = service.Feature,
                 Category = service.Category,
                 TimeLine = service.TimeLine,
+                CategoryAr = service.CategoryAr,
+                DescriptionAr = service.DescriptionAr,
+                TitleAr = service.TitleAr,
                 Projects = projectsDto,
                 Reviews = _mapper.Map<List<ReviewDto>>(reviews),
                 Complaints = _mapper.Map<List<ComplaintDto>>(complaints),
@@ -137,7 +145,7 @@ namespace CleverCode.Services
             };
             return new ServiceResult()
             {
-                Data = LocalizeService(service),
+                Data = serviceDto,
                 Message = "Service retrieved successfully",
                 StatusCode = HttpStatusCode.OK,
                 Success = true
@@ -181,6 +189,16 @@ namespace CleverCode.Services
                     Success = false
                 };
             }
+            service.Description = serviceDto.Description;
+            service.DescriptionAr = serviceDto.DescriptionAr;
+            service.Pricing = serviceDto.Pricing;
+            service.Title = serviceDto.Title;
+            service.TitleAr = serviceDto.TitleAr;
+            service.Category = serviceDto.Category;
+            service.CategoryAr = serviceDto.CategoryAr;
+            service.Feature = serviceDto.Feature;
+            service.Icon = serviceDto.Icon;
+            service.TimeLine = serviceDto.TimeLine;
             _context.Services.Update(service);
             var result = await _context.SaveChangesAsync();
 
